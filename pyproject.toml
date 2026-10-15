@@ -24,8 +24,8 @@ select = [
 
 [tool.ruff.lint.per-file-ignores]
 # assert est l'outil normal des tests pytest.
-"**/tests/**" = ["S101", "S106"]
-"tests/**" = ["S101", "S106"]
+"**/tests/**" = ["S101", "S105", "S106"]
+"tests/**" = ["S101", "S105", "S106"]
 # Les réglages importent * depuis base.py par conception.
 "config/settings/*.py" = ["F403", "F405"]
 

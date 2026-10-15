@@ -81,5 +81,15 @@ def test_environment_settings_do_not_mutate_base():
     assert "whitenoise" not in base.STORAGES["staticfiles"]["BACKEND"]
 
 
+def test_passenger_entry_point_exposes_wsgi_application():
+    passenger = importlib.import_module("passenger_wsgi")
+
+    assert callable(passenger.application)
+
+
+def test_custom_user_model_is_configured():
+    assert settings.AUTH_USER_MODEL == "accounts.User"
+
+
 def test_django_system_checks_pass():
     call_command("check", fail_level="WARNING")

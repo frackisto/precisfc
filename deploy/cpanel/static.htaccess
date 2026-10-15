@@ -1,0 +1,15 @@
+# À copier dans <racine-web>/static/.htaccess
+# Les fichiers statiques sont servis directement par Apache/LiteSpeed, sans passer par Django.
+PassengerEnabled off
+Options -Indexes
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Les noms de fichiers contiennent une empreinte (collectstatic) : cache long sans risque.
+    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

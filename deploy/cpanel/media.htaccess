@@ -1,0 +1,14 @@
+# À copier dans <racine-web>/media/.htaccess
+# Médias publics (photos, logos…) servis par Apache/LiteSpeed.
+PassengerEnabled off
+Options -Indexes -ExecCGI
+
+# Aucun script ne doit jamais s'exécuter depuis un fichier téléversé.
+<FilesMatch "\.(php[0-9]?|phtml|phar|pl|py|cgi|sh|asp|aspx|jsp|htaccess)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set Cache-Control "public, max-age=604800"
+</IfModule>

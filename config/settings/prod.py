@@ -27,3 +27,30 @@ if env.bool("DJANGO_TRUST_X_FORWARDED_PROTO", default=False):
 SECURE_HSTS_SECONDS = env.int("DJANGO_SECURE_HSTS_SECONDS", default=0)
 SECURE_HSTS_INCLUDE_SUBDOMAINS = env.bool("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", default=False)
 SECURE_HSTS_PRELOAD = False
+
+# --- Journalisation dans des fichiers (LOG_DIR, hors de public_html) -------------
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+_file_handler = {
+    "class": "logging.handlers.RotatingFileHandler",
+    "formatter": "verbose",
+    "maxBytes": 5 * 1024 * 1024,
+    "backupCount": 5,
+    "encoding": "utf-8",
+}
+LOGGING = {
+    **LOGGING,
+    "handlers": {
+        **LOGGING["handlers"],
+        "file": {**_file_handler, "filename": str(LOG_DIR / "django.log")},
+        "errors_file": {**_file_handler, "filename": str(LOG_DIR / "errors.log"), "level": "ERROR"},
+    },
+    "root": {"handlers": ["file", "errors_file"], "level": LOG_LEVEL},
+    "loggers": {
+        "django": {
+            "handlers": ["file", "errors_file", "mail_admins"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "apps": {"handlers": ["file", "errors_file"], "level": LOG_LEVEL, "propagate": False},
+    },
+}
