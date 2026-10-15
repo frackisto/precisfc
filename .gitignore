@@ -1,0 +1,34 @@
+# Environnements et secrets
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Tests et qualité
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Fichiers générés ou téléversés
+/media/
+/private_media/
+/staticfiles/
+/logs/
+*.log
+/backups/
+
+# Passenger (cPanel)
+/tmp/
+
+# IDE et système
+.idea/
+.DS_Store
+Thumbs.db

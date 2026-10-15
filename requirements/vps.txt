@@ -1,0 +1,9 @@
+# Option future : serveur dédié (VPS) avec Gunicorn, Nginx, Redis et worker Celery.
+-r base.txt
+
+mysqlclient==2.3.0
+gunicorn==26.2.0
+# kombu[redis] (Celery 5.6) impose redis<6.5 : ne pas monter en 7.x/8.x.
+redis==6.4.0
+django-redis==7.0.0
+sentry-sdk==2.72.0

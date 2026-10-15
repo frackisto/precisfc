@@ -1,0 +1,48 @@
+[project]
+name = "precisfc"
+version = "0.1.0"
+description = "Plateforme web officielle du club Precis FC"
+requires-python = ">=3.13,<3.14"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+extend-exclude = ["*/migrations/*", "static/vendor"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # tri des imports
+    "B",        # bugbear
+    "UP",       # pyupgrade
+    "DJ",       # bonnes pratiques Django
+    "S",        # sécurité (bandit)
+    "C4",       # compréhensions
+    "SIM",      # simplifications
+]
+
+[tool.ruff.lint.per-file-ignores]
+# assert est l'outil normal des tests pytest.
+"**/tests/**" = ["S101", "S106"]
+"tests/**" = ["S101", "S106"]
+# Les réglages importent * depuis base.py par conception.
+"config/settings/*.py" = ["F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "apps"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["tests.py", "test_*.py"]
+testpaths = ["apps", "tests"]
+addopts = "--strict-markers -ra"
+
+[tool.coverage.run]
+source = ["apps", "config"]
+omit = ["*/migrations/*", "*/tests/*", "config/wsgi.py", "config/asgi.py"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
