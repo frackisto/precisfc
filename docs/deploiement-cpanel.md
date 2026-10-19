@@ -89,6 +89,7 @@ nano .env
 Contenu (adapter chaque valeur) :
 
 ```ini
+DJANGO_SETTINGS_MODULE=config.settings.prod
 DJANGO_SECRET_KEY=<clé générée ci-dessus>
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=<domaine>
@@ -106,6 +107,8 @@ EMAIL_URL=consolemail://
 ```
 
 Puis : `chmod 600 .env`.
+
+> La première ligne est indispensable : sans elle, `python manage.py` charge les réglages de développement et échoue avec « No module named 'debug_toolbar' ».
 
 > Dans le mot de passe de `DATABASE_URL`, encoder les caractères spéciaux : `@` → `%40`, `:` → `%3A`, `/` → `%2F`, `#` → `%23`.
 
@@ -162,6 +165,7 @@ cd /home/<compte>/precisfc && /home/<compte>/virtualenv/precisfc/3.13/bin/python
 | `Access denied` sur la base | Vérifier l'utilisateur, le mot de passe encodé, et les privilèges dans cPanel |
 | `Can't connect … through socket` / connexion refusée | Remplacer `localhost` par `127.0.0.1` dans `DATABASE_URL` (ou l'inverse) |
 | Page d'admin sans mise en forme, ou erreur 500 sur `/static/` | Retirer la ligne `PassengerEnabled off` de `<racine-web>/static/.htaccess` (non supportée par certains serveurs LiteSpeed) ; WhiteNoise sert alors les fichiers |
+| `No module named 'debug_toolbar'` | Les réglages de développement ont été chargés : ajouter `DJANGO_SETTINGS_MODULE=config.settings.prod` en tête du `.env` (étape 5) |
 | Modification non prise en compte | `touch ~/precisfc/tmp/restart.txt` |
 
 ## 10. Mises à jour suivantes

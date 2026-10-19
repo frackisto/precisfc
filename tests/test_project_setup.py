@@ -1,6 +1,7 @@
 """Tests de l'étape 2 : configuration du projet et compatibilité des dépendances."""
 
 import importlib
+import os
 import sys
 
 import django
@@ -85,6 +86,29 @@ def test_passenger_entry_point_exposes_wsgi_application():
     passenger = importlib.import_module("passenger_wsgi")
 
     assert callable(passenger.application)
+
+
+def test_manage_py_takes_settings_module_from_env_file(tmp_path, monkeypatch):
+    # Sur le serveur, le .env impose prod : dev (et debug_toolbar) n'est jamais chargé.
+    manage = importlib.import_module("manage")
+    env_file = tmp_path / ".env"
+    env_file.write_text("DJANGO_SETTINGS_MODULE=config.settings.prod\n", encoding="utf-8")
+    monkeypatch.delenv("DJANGO_SETTINGS_MODULE")
+
+    manage.load_env_file(env_file)
+
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "config.settings.prod"
+
+
+def test_manage_py_env_file_does_not_override_existing_variable(tmp_path, monkeypatch):
+    manage = importlib.import_module("manage")
+    env_file = tmp_path / ".env"
+    env_file.write_text("DJANGO_SETTINGS_MODULE=config.settings.prod\n", encoding="utf-8")
+    monkeypatch.setenv("DJANGO_SETTINGS_MODULE", "config.settings.test")
+
+    manage.load_env_file(env_file)
+
+    assert os.environ["DJANGO_SETTINGS_MODULE"] == "config.settings.test"
 
 
 def test_custom_user_model_is_configured():
