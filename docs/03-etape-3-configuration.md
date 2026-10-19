@@ -1,6 +1,6 @@
 # Étape 3 — Base de données, configuration, fichiers, tâches
 
-> Statut : **partie locale terminée** (49 tests verts, couverture 97 %). Reste le **déploiement de test chez LWS** ([deploiement-cpanel.md](deploiement-cpanel.md)).
+> Statut : **terminée**. Partie locale : 51 tests verts. Déploiement de test chez LWS validé sur https://precisfc.com ([deploiement-cpanel.md](deploiement-cpanel.md)).
 
 ## Ce qui a été mis en place
 
@@ -41,7 +41,28 @@ Correction, sans toucher à la configuration de WAMP (que d'autres projets peuve
 | `pytest --cov` | **49 réussis**, couverture **97 %** |
 | Serveur de dev | `/healthz/` 200, page de connexion admin 200, CSS 200 |
 
-## Tests ajoutés (34)
+## Déploiement de test chez LWS (precisfc.com)
+
+| Contrôle | Résultat |
+|---|---|
+| `check --deploy --database default` | Uniquement `security.W004` (HSTS), volontaire |
+| `https://precisfc.com/healthz/` | `{"status": "ok"}` |
+| Administration (chemin secret) | Page de connexion mise en forme, connexion du super administrateur |
+| En-tête des fichiers statiques | `cache-control: public, max-age=31536000, immutable` (servis par Apache) |
+| `http://` → `https://` | `301 Moved Permanently` |
+| `run_scheduled_jobs` et cron toutes les 5 min | Exécution réussie, puis « pas encore due » dans `logs/cron.log` |
+
+### Problèmes rencontrés pendant le déploiement
+
+| Problème | Cause | Correction |
+|---|---|---|
+| `No module named 'debug_toolbar'` | `manage.py` chargeait les réglages de développement sans `export DJANGO_SETTINGS_MODULE` | `manage.py` lit le `.env`, où le serveur fixe `DJANGO_SETTINGS_MODULE=config.settings.prod` (2 tests ajoutés) |
+| `staticfiles.E002` | `STATIC_ROOT` et `MEDIA_ROOT` pointaient vers le dossier du projet | Valeurs corrigées vers `public_html` ; le guide explique comment trouver la racine du document |
+| Administration sur `/gestion/` | Chemin devinable, et réservé au tableau de bord de l'étape 10 | Remplacé par un chemin aléatoire dans le `.env` du serveur |
+
+## Tests ajoutés (36)
+
+- **Déploiement (2)** : `manage.py` prend le module de réglages dans le `.env` sans écraser une variable déjà définie.
 
 - **Comptes (10)** : normalisation de l'e-mail, hachage, unicité insensible à la casse imposée par la base, connexion avec une casse différente, super administrateur, création d'un utilisateur via l'admin.
 - **Base (7)** : utf8mb4 et InnoDB, toutes les tables en InnoDB, aller-retour d'accents et d'emoji, annulation de transaction, contrôles E001 et E003.
