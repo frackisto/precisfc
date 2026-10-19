@@ -4,7 +4,7 @@
 > Remplacer partout :
 > - `<compte>` : votre identifiant cPanel ;
 > - `<domaine>` : le domaine ou sous-domaine du site ;
-> - `<racine-web>` : la « racine du document » de ce domaine, visible dans cPanel → **Domaines** (ex. `/home/<compte>/public_html` pour le domaine principal) ;
+> - `<racine-web>` : la « racine du document » de ce domaine, visible dans cPanel → **Domaines** ou avec `uapi DomainInfo single_domain_data domain=<domaine> | grep documentroot` (ex. `/home/<compte>/public_html` pour le domaine principal). Ce n'est **jamais** le dossier du projet `~/precisfc` ;
 > - `<identifiant-github>` : votre identifiant GitHub.
 
 **Conseil :** pour le test, utilisez un **sous-domaine dédié** (ex. `beta.<domaine>`), créé dans cPanel → **Domaines**. Le site principal n'est ainsi pas touché.
