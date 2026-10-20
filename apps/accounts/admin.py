@@ -2,7 +2,17 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
 from .forms import AdminUserCreationForm, UserChangeForm
-from .models import User
+from .models import Address, Profile, User
+
+
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    can_delete = False
+
+
+class AddressInline(admin.TabularInline):
+    model = Address
+    extra = 0
 
 
 @admin.register(User)
@@ -14,6 +24,7 @@ class UserAdmin(DjangoUserAdmin):
     list_display = ("email", "first_name", "last_name", "is_staff", "is_active", "date_joined")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("email", "first_name", "last_name")
+    inlines = [ProfileInline, AddressInline]
 
     fieldsets = (
         (None, {"fields": ("email", "password")}),
@@ -33,3 +44,7 @@ class UserAdmin(DjangoUserAdmin):
             },
         ),
     )
+
+    def get_inlines(self, request, obj):
+        # Pas de profil ni d'adresse sur le formulaire de création.
+        return self.inlines if obj else []

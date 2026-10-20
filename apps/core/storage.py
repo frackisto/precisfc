@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from django.core.files.storage import FileSystemStorage, storages
 
 
 class PrivateStorage(FileSystemStorage):
@@ -21,3 +21,12 @@ class PrivateStorage(FileSystemStorage):
             "Un fichier privé n'a pas d'URL publique : utiliser une vue de téléchargement "
             "qui vérifie les permissions."
         )
+
+
+def private_storage():
+    """Stockage privé, pour ``FileField(storage=private_storage)``.
+
+    Un appelable plutôt qu'une instance : les migrations ne figent ni la classe ni le
+    dossier, qui restent définis par le réglage ``STORAGES["private"]``.
+    """
+    return storages["private"]

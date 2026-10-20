@@ -32,10 +32,27 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 # Les applications tierces sont ajoutées à l'étape où elles sont utilisées.
-THIRD_PARTY_APPS: list[str] = []
+THIRD_PARTY_APPS = [
+    "django_countries",
+    "phonenumber_field",
+]
 LOCAL_APPS = [
     "apps.core",
     "apps.accounts",
+    "apps.teams",
+    "apps.competitions",
+    "apps.matches",
+    "apps.news",
+    "apps.media_library",
+    "apps.shop",
+    "apps.orders",
+    "apps.payments",
+    "apps.ticketing",
+    "apps.academy",
+    "apps.partners",
+    "apps.contact",
+    "apps.notifications",
+    "apps.dashboard",
 ]
 
 # Modèle utilisateur personnalisé (connexion par e-mail) : défini avant le premier migrate.
@@ -119,6 +136,10 @@ TIME_ZONE = "Africa/Abidjan"
 USE_I18N = True
 USE_TZ = True
 LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# Numéros saisis sans indicatif : Côte d'Ivoire (+225).
+PHONENUMBER_DEFAULT_REGION = "CI"
+COUNTRIES_FIRST = ["CI"]
 
 # --- Fichiers statiques et médias ---------------------------------------------
 STATIC_URL = "static/"
