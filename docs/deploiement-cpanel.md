@@ -120,9 +120,7 @@ export DJANGO_SETTINGS_MODULE=config.settings.prod
 
 pip install --upgrade pip
 pip install -r requirements/cpanel.txt
-#   Si mysqlclient ne compile pas : pip install -r requirements/base.txt sentry-sdk==2.72.0
-#   (PyMySQL prend alors le relais automatiquement)
-python -c "import config; print('Pilote MySQL :', config.MYSQL_DRIVER)"
+python -c "import config; print('Pilote MySQL :', config.MYSQL_DRIVER)"   # attendu : pymysql
 
 python manage.py check --deploy --database default   # seul avertissement attendu : security.W004 (HSTS)
 python manage.py migrate
@@ -166,6 +164,7 @@ cd /home/<compte>/precisfc && /home/<compte>/virtualenv/precisfc/3.13/bin/python
 | `Can't connect … through socket` / connexion refusée | Remplacer `localhost` par `127.0.0.1` dans `DATABASE_URL` (ou l'inverse) |
 | Page d'admin sans mise en forme, ou erreur 500 sur `/static/` | Retirer la ligne `PassengerEnabled off` de `<racine-web>/static/.htaccess` (non supportée par certains serveurs LiteSpeed) ; WhiteNoise sert alors les fichiers |
 | `No module named 'debug_toolbar'` | Les réglages de développement ont été chargés : ajouter `DJANGO_SETTINGS_MODULE=config.settings.prod` en tête du `.env` (étape 5) |
+| `Failed to build 'mysqlclient'` pendant `pip install` | Version de `requirements/cpanel.txt` antérieure au 20/10/2026 : faire `git pull`. LWS ne permet pas de compiler mysqlclient ; PyMySQL le remplace |
 | Modification non prise en compte | `touch ~/precisfc/tmp/restart.txt` |
 
 ## 10. Mises à jour suivantes

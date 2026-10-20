@@ -1,8 +1,7 @@
 # Production sur l'hébergement mutualisé cPanel (LWS, Passenger).
 -r base.txt
 
-# mysqlclient doit être compilé sur le serveur. Si l'installation échoue,
-# supprimer cette ligne : PyMySQL (dans base.txt) prend automatiquement le relais.
-mysqlclient==2.3.0
+# Pas de mysqlclient : il doit être compilé, et LWS ne fournit pas les en-têtes MariaDB
+# (échec constaté le 20/10/2026). PyMySQL (dans base.txt) est utilisé automatiquement.
 
 sentry-sdk==2.72.0

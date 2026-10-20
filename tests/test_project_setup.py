@@ -53,6 +53,15 @@ def test_pymysql_fallback_when_mysqlclient_is_missing(monkeypatch):
     assert sys.modules["MySQLdb"].__name__ == "pymysql"
 
 
+def test_cpanel_requirements_need_no_compilation():
+    # LWS ne fournit pas les en-têtes MariaDB : mysqlclient y fait échouer pip install.
+    requirements = (settings.BASE_DIR / "requirements" / "cpanel.txt").read_text(encoding="utf-8")
+    packages = [line.split("==")[0].strip().lower() for line in requirements.splitlines()]
+
+    assert "mysqlclient" not in packages
+    assert "-r base.txt" in packages
+
+
 def test_tests_never_run_in_debug():
     assert settings.DEBUG is False
 

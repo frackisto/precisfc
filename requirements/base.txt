@@ -6,7 +6,8 @@
 Django==5.2.18
 django-environ==0.14.0
 # Pilote MySQL/MariaDB pur Python : repli automatique si mysqlclient est absent
-# (voir config/settings/base.py). mysqlclient est ajouté dans dev.txt / cpanel.txt.
+# (voir config/db_driver.py), seul pilote utilisé chez LWS.
+# mysqlclient est ajouté dans dev.txt et vps.txt.
 PyMySQL==1.2.3
 
 # --- API --------------------------------------------------------------------
