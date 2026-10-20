@@ -209,6 +209,11 @@ class ClubSettings(SingletonModel):
     class Meta:
         verbose_name = "paramètres du club"
         verbose_name_plural = "paramètres du club"
+        # Droits transverses, rattachés aux paramètres faute de modèle « tableau de bord ».
+        permissions = [
+            ("view_dashboard", "Peut accéder au tableau de bord"),
+            ("view_financial_reports", "Peut consulter les indicateurs financiers"),
+        ]
 
     def __str__(self):
         return "Paramètres du club"

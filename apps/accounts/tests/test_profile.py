@@ -20,8 +20,8 @@ def make_address(user, label, **kwargs):
     )
 
 
-def test_profile_defaults_to_ivory_coast():
-    profile = Profile.objects.create(user=UserFactory())
+def test_profile_is_created_with_the_account_and_defaults_to_ivory_coast():
+    profile = UserFactory().profile
 
     assert profile.country == "CI"
     assert profile.notify_news is True
@@ -30,7 +30,6 @@ def test_profile_defaults_to_ivory_coast():
 
 def test_one_profile_per_user():
     user = UserFactory()
-    Profile.objects.create(user=user)
 
     with rejected_by_database():
         Profile.objects.create(user=user)

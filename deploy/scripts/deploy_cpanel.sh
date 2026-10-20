@@ -22,6 +22,7 @@ pip install --quiet -r requirements/cpanel.txt
 python manage.py check --deploy --database default --fail-level ERROR
 
 python manage.py migrate --noinput
+python manage.py setup_roles   # rôles et permissions, toujours à jour (idempotente)
 python manage.py createcachetable
 python manage.py collectstatic --noinput
 

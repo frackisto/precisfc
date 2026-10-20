@@ -14,6 +14,10 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
+# Fermées par défaut tant que l'envoi d'e-mails (SMTP LWS) n'est pas configuré.
+ACCOUNT_SIGNUP_OPEN = env.bool("DJANGO_SIGNUP_OPEN", default=False)
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+
 # --- HTTPS ----------------------------------------------------------------------
 SECURE_SSL_REDIRECT = env.bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
 SESSION_COOKIE_SECURE = True

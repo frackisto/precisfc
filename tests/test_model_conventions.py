@@ -81,3 +81,12 @@ def test_indexed_text_columns_fit_innodb_limits(model):
 @pytest.mark.django_db
 def test_no_missing_migrations():
     call_command("makemigrations", "--check", "--dry-run", verbosity=0)
+
+
+@pytest.mark.parametrize("model", PROJECT_MODELS, ids=lambda model: model._meta.label)
+def test_no_partial_unique_constraints(model):
+    # MariaDB ne crée pas ces contraintes (avertissement models.W036, masqué pour allauth).
+    for constraint in model._meta.constraints:
+        assert getattr(constraint, "condition", None) is None or isinstance(
+            constraint, models.CheckConstraint
+        ), constraint.name

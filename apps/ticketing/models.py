@@ -127,6 +127,7 @@ class Ticket(TimeStampedModel):
     class Meta:
         verbose_name = "billet"
         verbose_name_plural = "billets"
+        permissions = [("scan_ticket", "Peut contrôler les billets à l'entrée")]
         ordering = ["booking", "pk"]
         constraints = [
             models.CheckConstraint(

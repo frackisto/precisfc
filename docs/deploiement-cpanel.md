@@ -104,9 +104,12 @@ LOG_DIR=/home/<compte>/precisfc/logs
 CACHE_URL=dbcache://django_cache
 CELERY_TASK_ALWAYS_EAGER=True
 EMAIL_URL=consolemail://
+DJANGO_SIGNUP_OPEN=False
 ```
 
 Puis : `chmod 600 .env`.
+
+> `DJANGO_SIGNUP_OPEN=False` : inscriptions des supporters fermées tant que l'envoi d'e-mails (SMTP) n'est pas configuré, sinon les e-mails de vérification ne partiraient pas. Passer à `True` après avoir renseigné `EMAIL_URL`.
 
 > La première ligne est indispensable : sans elle, `python manage.py` charge les réglages de développement et échoue avec « No module named 'debug_toolbar' ».
 
@@ -124,6 +127,7 @@ python -c "import config; print('Pilote MySQL :', config.MYSQL_DRIVER)"   # atte
 
 python manage.py check --deploy --database default   # seul avertissement attendu : security.W004 (HSTS)
 python manage.py migrate
+python manage.py setup_roles
 python manage.py createcachetable
 python manage.py collectstatic --noinput
 python manage.py createsuperuser

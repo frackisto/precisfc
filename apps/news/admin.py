@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from apps.accounts.permissions import can_change_article, can_publish_article
 from apps.core.admin import SEO_FIELDSET
 
 from .models import Article, Category, Tag
@@ -63,3 +64,22 @@ class ArticleAdmin(admin.ModelAdmin):
         ),
         SEO_FIELDSET,
     )
+
+    # Champs que seules les personnes habilitées à publier peuvent modifier.
+    PUBLISHER_FIELDS = ("status", "publish_at", "is_featured", "author", "review_note")
+
+    def has_change_permission(self, request, obj=None):
+        if obj is None:
+            return super().has_change_permission(request)
+        return can_change_article(request.user, obj)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        if can_publish_article(request.user):
+            return fields
+        return (*fields, *self.PUBLISHER_FIELDS)
+
+    def save_model(self, request, obj, form, change):
+        if not change and obj.author_id is None:
+            obj.author = request.user
+        super().save_model(request, obj, form, change)

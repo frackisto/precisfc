@@ -116,6 +116,7 @@ class Article(SluggedModel, SEOFields):
     class Meta:
         verbose_name = "article"
         verbose_name_plural = "articles"
+        permissions = [("publish_article", "Peut relire, programmer et publier un article")]
         ordering = ["-publish_at", "-pk"]
         indexes = [models.Index(fields=["status", "publish_at"])]
         constraints = [

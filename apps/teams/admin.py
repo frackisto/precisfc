@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from apps.accounts.permissions import can_change_player
+
 from .models import Player, PlayerPhoto, Staff, Team
 
 
@@ -34,6 +36,13 @@ class PlayerAdmin(admin.ModelAdmin):
     search_fields = ("first_name", "last_name")
     list_select_related = ("team",)
     inlines = [PlayerPhotoInline]
+
+    def has_change_permission(self, request, obj=None):
+        # Un entraîneur ne modifie que les joueurs de son équipe.
+        if obj is None:
+            return super().has_change_permission(request)
+        return can_change_player(request.user, obj)
+
     fieldsets = (
         (
             None,

@@ -74,6 +74,7 @@ class Payment(TimeStampedModel):
     class Meta:
         verbose_name = "paiement"
         verbose_name_plural = "paiements"
+        permissions = [("confirm_manual_payment", "Peut confirmer un paiement manuel")]
         ordering = ["-created_at"]
         indexes = [models.Index(fields=["status", "created_at"])]
         constraints = [

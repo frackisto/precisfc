@@ -4,6 +4,7 @@ Les valeurs propres à chaque machine (secrets, base de données, hôtes) provie
 des variables d'environnement ou du fichier ``.env`` (voir ``.env.example``).
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -35,6 +36,9 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "django_countries",
     "phonenumber_field",
+    "allauth",
+    "allauth.account",
+    "axes",
 ]
 LOCAL_APPS = [
     "apps.core",
@@ -68,6 +72,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
+    # En dernier : bloque les requêtes des comptes ou adresses IP verrouillés.
+    "axes.middleware.AxesMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -107,10 +114,65 @@ DATABASES["default"]["TEST"] = {
     "CHARSET": "utf8mb4",
     "COLLATION": "utf8mb4_unicode_ci",
 }
+# Dates stockées dans le fuseau du club. Abidjan étant toujours à UTC+0 (sans heure d'été),
+# les valeurs sont identiques à de l'UTC, mais Django n'a plus besoin de CONVERT_TZ() pour
+# regrouper par jour ou par mois : cette fonction exige les tables de fuseaux de MariaDB,
+# absentes de WAMP et impossibles à installer sur l'hébergement mutualisé LWS.
+# Un test vérifie que le fuseau reste à décalage nul.
+DATABASES["default"]["TIME_ZONE"] = "Africa/Abidjan"
 DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# --- Authentification ------------------------------------------------------------
+AUTHENTICATION_BACKENDS = [
+    # En premier : refuse toute tentative sur un couple e-mail + IP verrouillé.
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+LOGIN_URL = "account_login"
+LOGIN_REDIRECT_URL = "accounts:profile"
+ACCOUNT_LOGOUT_REDIRECT_URL = "account_login"
+
+# django-allauth : connexion par e-mail, adresse vérifiée obligatoire.
+ACCOUNT_ADAPTER = "apps.accounts.adapters.AccountAdapter"
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_CONFIRM_EMAIL_ON_GET = False
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_LOGIN_ON_PASSWORD_RESET = False
+ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = False
+ACCOUNT_SESSION_REMEMBER = None
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[Precis FC] "
+# Échecs de connexion : django-axes verrouille le couple compte + IP au 5e échec.
+# Le limiteur d'allauth (5 échecs par compte, toutes connexions confondues, par défaut)
+# permettrait à n'importe qui de bloquer un supporter : il ne sert plus que de filet
+# contre une attaque répartie sur de nombreuses adresses IP.
+ACCOUNT_RATE_LIMITS = {"login_failed": "10/m/ip,20/15m/key"}
+# Inscriptions ouvertes ou non (fermées en production tant que le SMTP n'est pas en place,
+# sinon les e-mails de vérification ne partiraient pas).
+ACCOUNT_SIGNUP_OPEN = env.bool("DJANGO_SIGNUP_OPEN", default=True)
+
+# allauth déclare des index uniques partiels sur ses adresses e-mail, que MariaDB ne
+# connaît pas (models.W036). Sans conséquence : User.email est unique en base et allauth
+# vérifie l'unicité lui-même (ACCOUNT_UNIQUE_EMAIL). Le projet n'utilise aucun index partiel.
+SILENCED_SYSTEM_CHECKS = ["models.W036"]
+
+# django-axes : verrouillage après des échecs répétés (stockage en base).
+AXES_FAILURE_LIMIT = env.int("AXES_FAILURE_LIMIT", default=5)
+AXES_COOLOFF_TIME = timedelta(minutes=env.int("AXES_COOLOFF_MINUTES", default=30))
+# Verrouille le couple compte + adresse IP : un attaquant ne peut pas bloquer
+# un supporter depuis une autre connexion.
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+AXES_USERNAME_CALLABLE = "apps.accounts.axes.get_login_email"
+AXES_RESET_ON_SUCCESS = True
+AXES_LOCKOUT_TEMPLATE = "accounts/lockout.html"
+AXES_VERBOSE = False
 
 # --- Mots de passe ------------------------------------------------------------
 PASSWORD_HASHERS = [

@@ -1,0 +1,12 @@
+{% extends "allauth/layouts/base.html" %}
+{% comment %}Mise en forme définitive à l'étape 6 (thème Bootstrap).{% endcomment %}
+{% block head_title %}Mon compte — Precis FC{% endblock head_title %}
+{% block content %}
+  <h1>Mon compte</h1>
+  <p>Connecté avec <strong>{{ user.email }}</strong>.</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Enregistrer</button>
+  </form>
+{% endblock content %}

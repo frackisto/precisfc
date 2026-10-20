@@ -1,5 +1,5 @@
 import pytest
-from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate, get_user_model
 from django.db import IntegrityError, transaction
 from django.urls import reverse
 
@@ -38,10 +38,11 @@ def test_email_uniqueness_is_case_insensitive():
         User(email="JOUEUR@PRECIS.CI").save()
 
 
-def test_login_with_differently_cased_email(client):
-    User.objects.create_user("staff@precis.ci", password=PASSWORD)
+def test_login_with_differently_cased_email(rf):
+    user = User.objects.create_user("staff@precis.ci", password=PASSWORD)
 
-    assert client.login(username="Staff@Precis.CI", password=PASSWORD)
+    # django-axes exige la requête à chaque tentative (comptage des échecs par IP).
+    assert authenticate(rf.post("/"), username="Staff@Precis.CI", password=PASSWORD) == user
 
 
 def test_create_superuser_sets_flags():

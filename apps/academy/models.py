@@ -228,6 +228,9 @@ class ApplicationDocument(TimeStampedModel):
     class Meta:
         verbose_name = "document de candidature"
         verbose_name_plural = "documents de candidature"
+        permissions = [
+            ("download_private_document", "Peut télécharger les documents privés des candidats")
+        ]
         ordering = ["application", "kind"]
 
     def __str__(self):
