@@ -12,6 +12,9 @@ urlpatterns = [
     path("compte/", include("apps.accounts.urls")),
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
     path("", include("apps.core.urls")),
+    path("", include("apps.teams.urls")),
+    path("", include("apps.matches.urls")),
+    path("", include("apps.competitions.urls")),
 ]
 
 if settings.DEBUG:

@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.urls import reverse
 from django_countries.fields import CountryField
 
 from apps.core.models import SluggedModel, TimeStampedModel
@@ -177,6 +178,9 @@ class CompetitionSeason(TimeStampedModel):
 
     def __str__(self):
         return f"{self.competition} {self.season} — {self.team}"
+
+    def get_absolute_url(self):
+        return reverse("competitions:detail", args=[self.competition.slug, self.season.slug])
 
 
 class Participation(TimeStampedModel):

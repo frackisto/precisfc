@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <header class="mb-4">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ edition.team.name }} · {{ edition.season.name }}</p>
+    <h1 class="display-6 fw-bold">{{ edition.competition.name }}</h1>
+    <a href="{% url 'matches:list' %}?saison={{ edition.season.slug }}&amp;competition={{ edition.competition.slug }}">Voir les matchs de cette compétition</a>
+  </header>
+
+  {% for group, rows in groups %}
+    <section class="mb-5" aria-labelledby="classement-{{ forloop.counter }}">
+      <h2 id="classement-{{ forloop.counter }}" class="h4 mb-3">Classement{% if group %} — {{ group }}{% endif %}</h2>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle standings-table">
+          <thead>
+            <tr>
+              <th scope="col" class="text-end">#</th>
+              <th scope="col">Club</th>
+              <th scope="col" class="text-end"><abbr title="Points">Pts</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Matchs joués">J</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Gagnés">G</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Nuls">N</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Perdus">P</abbr></th>
+              <th scope="col" class="text-end d-none d-sm-table-cell"><abbr title="Buts pour">BP</abbr></th>
+              <th scope="col" class="text-end d-none d-sm-table-cell"><abbr title="Buts contre">BC</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Différence de buts">Diff.</abbr></th>
+              <th scope="col" class="d-none d-md-table-cell">Forme</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr{% if row.club.is_own_club %} class="table-active fw-semibold"{% endif %}>
+                <td class="text-end">{{ row.position }}</td>
+                <th scope="row" class="fw-normal{% if row.club.is_own_club %} fw-semibold{% endif %}">{{ row.club.name }}</th>
+                <td class="text-end fw-bold">{{ row.points }}</td>
+                <td class="text-end">{{ row.played }}</td>
+                <td class="text-end">{{ row.won }}</td>
+                <td class="text-end">{{ row.drawn }}</td>
+                <td class="text-end">{{ row.lost }}</td>
+                <td class="text-end d-none d-sm-table-cell">{{ row.goals_for }}</td>
+                <td class="text-end d-none d-sm-table-cell">{{ row.goals_against }}</td>
+                <td class="text-end">{% if row.goal_difference > 0 %}+{% endif %}{{ row.goal_difference }}</td>
+                <td class="d-none d-md-table-cell">
+                  {% for letter in row.form %}<span class="badge form-{{ letter }} me-1" title="{% if letter == 'V' %}Victoire{% elif letter == 'N' %}Nul{% else %}Défaite{% endif %}">{{ letter }}</span>{% endfor %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% empty %}
+    {% if edition.competition.has_standings %}<p class="lead">Le classement sera publié après les premiers matchs.</p>{% endif %}
+  {% endfor %}
+
+  {% if best_attack or best_defence %}
+    <div class="row g-4 mb-5">
+      {% if best_attack %}<div class="col-sm-6"><div class="card h-100"><div class="card-body"><p class="small text-uppercase fw-bold text-accent-readable mb-1">Meilleure attaque</p><p class="h5 mb-0">{{ best_attack.club.name }} — {{ best_attack.goals_for }} buts</p></div></div></div>{% endif %}
+      {% if best_defence %}<div class="col-sm-6"><div class="card h-100"><div class="card-body"><p class="small text-uppercase fw-bold text-accent-readable mb-1">Meilleure défense</p><p class="h5 mb-0">{{ best_defence.club.name }} — {{ best_defence.goals_against }} buts encaissés</p></div></div></div>{% endif %}
+    </div>
+  {% endif %}
+
+  <div class="row g-5">
+    <section class="col-lg-6" aria-labelledby="titre-buteurs">
+      <h2 id="titre-buteurs" class="h4 mb-3">Meilleurs buteurs</h2>
+      {% if scorers %}
+        <canvas id="graphique-buteurs" class="mb-3" role="img" aria-label="Graphique des meilleurs buteurs (détail dans le tableau ci-dessous)" height="220"></canvas>
+        {{ scorers_chart|json_script:"donnees-buteurs" }}
+        {% include "competitions/partials/leaders.html" with lines=scorers value="goals" label="Buts" %}
+      {% else %}
+        <p>Aucun but enregistré pour le moment.</p>
+      {% endif %}
+    </section>
+    <section class="col-lg-6" aria-labelledby="titre-passeurs">
+      <h2 id="titre-passeurs" class="h4 mb-3">Meilleurs passeurs</h2>
+      {% if passers %}
+        {% include "competitions/partials/leaders.html" with lines=passers value="assists" label="Passes" %}
+      {% else %}
+        <p>Aucune passe décisive enregistrée pour le moment.</p>
+      {% endif %}
+    </section>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+  {% if scorers %}
+    <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+    <script src="{% static 'js/charts.js' %}"></script>
+  {% endif %}
+{% endblock extra_js %}

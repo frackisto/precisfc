@@ -3,6 +3,10 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 
+from apps.competitions.models import CompetitionSeason
+from apps.matches.models import Match
+from apps.teams.models import Player, Team
+
 from . import selectors
 
 
@@ -17,6 +21,9 @@ class StaticPagesSitemap(Sitemap):
             ("core:presidents", 0.5),
             ("core:organisation", 0.5),
             ("core:facilities", 0.6),
+            ("teams:list", 0.8),
+            ("matches:list", 0.9),
+            ("competitions:list", 0.8),
         ]
 
     def location(self, item):
@@ -48,8 +55,55 @@ class FacilitySitemap(Sitemap):
         return facility.updated_at
 
 
+class TeamSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        return Team.objects.filter(is_published=True).order_by("pk")
+
+    def lastmod(self, team):
+        return team.updated_at
+
+
+class PlayerSitemap(Sitemap):
+    """Joueurs publics uniquement : jamais un mineur sans consentement."""
+
+    changefreq = "weekly"
+    priority = 0.6
+
+    def items(self):
+        return Player.objects.public().order_by("pk")
+
+    def lastmod(self, player):
+        return player.updated_at
+
+
+class MatchSitemap(Sitemap):
+    changefreq = "daily"
+    priority = 0.6
+
+    def items(self):
+        return Match.objects.public().own_club().order_by("pk")
+
+    def lastmod(self, match):
+        return match.updated_at
+
+
+class EditionSitemap(Sitemap):
+    changefreq = "daily"
+    priority = 0.6
+
+    def items(self):
+        return CompetitionSeason.objects.select_related("competition", "season").order_by("pk")
+
+
 SITEMAPS = {
     "pages": StaticPagesSitemap,
     "club-pages": PageSitemap,
     "facilities": FacilitySitemap,
+    "teams": TeamSitemap,
+    "players": PlayerSitemap,
+    "matches": MatchSitemap,
+    "competitions": EditionSitemap,
 }

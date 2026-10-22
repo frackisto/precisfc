@@ -1,0 +1,14 @@
+{# Classement de joueurs : « lines » (PlayerSeasonStat), « value » (champ) et « label » (en-tête). #}
+<table class="table table-sm align-middle">
+  <thead><tr><th scope="col">#</th><th scope="col">Joueur</th><th scope="col">Équipe</th><th scope="col" class="text-end">{{ label }}</th></tr></thead>
+  <tbody>
+    {% for line in lines %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <th scope="row" class="fw-normal"><a href="{{ line.player.get_absolute_url }}">{{ line.player.full_name }}</a></th>
+        <td class="small text-body-secondary">{{ line.player.team.name }}</td>
+        <td class="text-end fw-bold">{% if value == "goals" %}{{ line.goals }}{% else %}{{ line.assists }}{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

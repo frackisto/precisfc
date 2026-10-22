@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+  <header class="mb-4">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ team.get_category_display }}</p>
+    <h1 class="display-6 fw-bold">{{ team.name }}</h1>
+    {% if team.description %}<div class="lead">{{ team.description|linebreaks }}</div>{% endif %}
+  </header>
+  {% if team.image %}<img src="{{ team.image.url }}" class="img-fluid rounded mb-5" alt="Photo de l’équipe {{ team.name }}">{% endif %}
+
+  <div class="row g-5">
+    <div class="col-lg-8">
+      <section aria-labelledby="titre-effectif">
+        <h2 id="titre-effectif" class="h3 mb-3">Effectif</h2>
+        {% for label, players in squad %}
+          <h3 class="h5 mt-4 mb-3">{{ label }}s</h3>
+          <div class="row g-3">
+            {% for player in players %}
+              <div class="col-6 col-md-4">
+                <a class="card h-100 text-decoration-none card-link-club" href="{{ player.get_absolute_url }}">
+                  {% if player.photo %}<img src="{{ player.photo.url }}" class="card-img-top player-card-photo" alt="" loading="lazy">{% endif %}
+                  <div class="card-body py-2">
+                    {% if player.shirt_number %}<span class="badge text-bg-primary me-1">{{ player.shirt_number }}</span>{% endif %}
+                    <span class="fw-semibold">{{ player.full_name }}</span>
+                    {% if player.detailed_position %}<p class="small text-body-secondary mb-0">{{ player.detailed_position }}</p>{% endif %}
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        {% empty %}
+          <p>L’effectif sera bientôt publié.</p>
+        {% endfor %}
+      </section>
+
+      {% if staff %}
+        <section class="mt-5" aria-labelledby="titre-staff">
+          <h2 id="titre-staff" class="h3 mb-3">Staff technique</h2>
+          <ul class="list-unstyled row g-3">
+            {% for member in staff %}
+              <li class="col-sm-6 d-flex align-items-center gap-3">
+                {% if member.photo %}<img src="{{ member.photo.url }}" alt="" width="56" height="56" class="rounded-circle person-photo" loading="lazy">{% endif %}
+                <span><strong>{{ member.full_name }}</strong><br><span class="small text-body-secondary">{{ member.get_role_display }}</span></span>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+    </div>
+
+    <aside class="col-lg-4">
+      {% if upcoming %}
+        <h2 class="h5">Prochains matchs</h2>
+        <ul class="list-group mb-4">
+          {% for match in upcoming %}{% include "matches/partials/match_row.html" %}{% endfor %}
+        </ul>
+      {% endif %}
+      {% if results %}
+        <h2 class="h5">Derniers résultats</h2>
+        <ul class="list-group mb-4">
+          {% for match in results %}{% include "matches/partials/match_row.html" %}{% endfor %}
+        </ul>
+      {% endif %}
+      <a class="btn btn-outline-primary" href="{% url 'matches:list' %}?equipe={{ team.slug }}">Tout le calendrier de l’équipe</a>
+    </aside>
+  </div>
+{% endblock content %}

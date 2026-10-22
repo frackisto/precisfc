@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 
 from apps.accounts.permissions import can_change_match
@@ -49,8 +50,22 @@ class MatchScheduleChangeInline(admin.TabularInline):
         return False
 
 
+class MatchAdminForm(forms.ModelForm):
+    schedule_change_reason = forms.CharField(
+        label="Motif du changement d'horaire",
+        required=False,
+        max_length=255,
+        help_text="Conservé dans l'historique si le coup d'envoi est modifié.",
+    )
+
+    class Meta:
+        model = Match
+        fields = "__all__"  # noqa: DJ007  (champs choisis par les fieldsets de MatchAdmin)
+
+
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
+    form = MatchAdminForm
     list_display = (
         "__str__",
         "competition_season",
@@ -72,6 +87,13 @@ class MatchAdmin(admin.ModelAdmin):
     autocomplete_fields = ("home_club", "away_club")
     inlines = [LineupEntryInline, MatchEventInline, MatchTeamStatInline, MatchScheduleChangeInline]
 
+    readonly_fields = ("original_kickoff_at",)
+
+    def save_model(self, request, obj, form, change):
+        obj.changed_by = request.user
+        obj.schedule_change_reason = form.cleaned_data.get("schedule_change_reason", "")
+        super().save_model(request, obj, form, change)
+
     def has_change_permission(self, request, obj=None):
         # Un entraîneur ne saisit que les matchs de son équipe ; les autres sont en lecture.
         if obj is None:
@@ -87,6 +109,7 @@ class MatchAdmin(admin.ModelAdmin):
                     ("matchday", "round_label"),
                     ("home_club", "away_club"),
                     ("kickoff_at", "original_kickoff_at"),
+                    "schedule_change_reason",
                     ("venue", "venue_name"),
                     "status",
                     "slug",

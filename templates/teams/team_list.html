@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="display-6 fw-bold mb-4">Équipes</h1>
+  <div class="row g-4">
+    {% for team in teams %}
+      <div class="col-md-6 col-lg-4">
+        <a class="card h-100 text-decoration-none card-link-club" href="{{ team.get_absolute_url }}">
+          {% if team.image %}<img src="{{ team.image.url }}" class="card-img-top article-cover" alt="" loading="lazy">{% endif %}
+          <div class="card-body">
+            <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ team.get_category_display }}</p>
+            <h2 class="h5 card-title mb-1">{{ team.name }}</h2>
+            {% if team.head_coach and team.head_coach.is_published %}<p class="small text-body-secondary mb-0">Entraîneur : {{ team.head_coach.full_name }}</p>{% endif %}
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <p class="lead">Les équipes seront bientôt présentées.</p>
+    {% endfor %}
+  </div>
+{% endblock content %}

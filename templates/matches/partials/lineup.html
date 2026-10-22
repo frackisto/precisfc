@@ -1,0 +1,13 @@
+{% load players %}
+{# Composition d'une équipe : variable « lineup » (titulaires d'abord, puis remplaçants). #}
+<ul class="list-unstyled mb-0">
+  {% for entry in lineup %}
+    {% ifchanged entry.is_starter %}{% if not entry.is_starter %}<li class="small text-uppercase fw-bold text-body-secondary mt-3 mb-1">Remplaçants</li>{% endif %}{% endifchanged %}
+    <li class="py-1">
+      <span class="lineup-number text-body-secondary">{{ entry.shirt_number|default_if_none:"" }}</span>
+      {% if entry.player and entry.player.is_public %}<a href="{{ entry.player.get_absolute_url }}">{{ entry.player.full_name }}</a>{% else %}{{ entry.player|public_name:entry.player_name }}{% endif %}
+      {% if entry.is_captain %}<abbr title="Capitaine" class="badge text-bg-secondary ms-1">C</abbr>{% endif %}
+      {% if entry.position %}<span class="small text-body-secondary">· {{ entry.position }}</span>{% endif %}
+    </li>
+  {% endfor %}
+</ul>

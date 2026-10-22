@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="row g-5">
+    <div class="col-md-4">
+      {% if player.photo %}
+        <img src="{{ player.photo.url }}" class="img-fluid rounded shadow-sm" alt="{{ player.full_name }}">
+      {% else %}
+        <div class="player-placeholder rounded d-flex align-items-center justify-content-center"><i class="bi bi-person display-1" aria-hidden="true"></i></div>
+      {% endif %}
+    </div>
+    <div class="col-md-8">
+      <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ player.team.name }}</p>
+      <h1 class="display-6 fw-bold">
+        {% if player.shirt_number %}<span class="text-accent-readable">{{ player.shirt_number }}</span> {% endif %}{{ player.full_name }}
+      </h1>
+      <dl class="row mt-4">
+        <dt class="col-sm-4">Poste</dt><dd class="col-sm-8">{{ player.get_position_display }}{% if player.detailed_position %} ({{ player.detailed_position }}){% endif %}</dd>
+        {% if player.nationality %}<dt class="col-sm-4">Nationalité</dt><dd class="col-sm-8">{{ player.nationality.name }}</dd>{% endif %}
+        {% if player.public_birth_date_label %}<dt class="col-sm-4">{% if player.is_minor %}Année de naissance{% else %}Date de naissance{% endif %}</dt><dd class="col-sm-8">{{ player.public_birth_date_label }}</dd>{% endif %}
+        {% if player.show_physical and not player.is_minor %}
+          {% if player.height_cm %}<dt class="col-sm-4">Taille</dt><dd class="col-sm-8">{{ player.height_cm }} cm</dd>{% endif %}
+          {% if player.weight_kg %}<dt class="col-sm-4">Poids</dt><dd class="col-sm-8">{{ player.weight_kg }} kg</dd>{% endif %}
+        {% endif %}
+        {% if player.preferred_foot %}<dt class="col-sm-4">Pied fort</dt><dd class="col-sm-8">{{ player.get_preferred_foot_display }}</dd>{% endif %}
+        {% if player.joined_on %}<dt class="col-sm-4">Au club depuis</dt><dd class="col-sm-8">{{ player.joined_on|date:"F Y" }}</dd>{% endif %}
+      </dl>
+      {% if player.bio %}<div class="mt-3">{{ player.bio|linebreaks }}</div>{% endif %}
+    </div>
+  </div>
+
+  {% if stats %}
+    <section class="mt-5" aria-labelledby="titre-stats">
+      <h2 id="titre-stats" class="h3 mb-3">Statistiques</h2>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Saison</th><th scope="col">Compétition</th>
+              <th scope="col" class="text-end"><abbr title="Matchs joués">MJ</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Titularisations">Tit.</abbr></th>
+              <th scope="col" class="text-end">Minutes</th>
+              <th scope="col" class="text-end">Buts</th>
+              <th scope="col" class="text-end"><abbr title="Passes décisives">Passes</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Cartons jaunes">CJ</abbr></th>
+              <th scope="col" class="text-end"><abbr title="Cartons rouges">CR</abbr></th>
+              {% if player.position == "GK" %}<th scope="col" class="text-end"><abbr title="Matchs sans encaisser de but">Clean sheets</abbr></th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in stats %}
+              <tr>
+                <td>{{ line.season.name }}</td>
+                <td>{{ line.competition_season.competition.name }}</td>
+                <td class="text-end">{{ line.appearances }}</td>
+                <td class="text-end">{{ line.starts }}</td>
+                <td class="text-end">{{ line.minutes }}</td>
+                <td class="text-end fw-semibold">{{ line.goals }}</td>
+                <td class="text-end">{{ line.assists }}</td>
+                <td class="text-end">{{ line.yellow_cards }}</td>
+                <td class="text-end">{{ line.red_cards }}</td>
+                {% if player.position == "GK" %}<td class="text-end">{{ line.clean_sheets }}</td>{% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% endif %}
+
+  {% if photos %}
+    <section class="mt-5" aria-labelledby="titre-photos">
+      <h2 id="titre-photos" class="h3 mb-3">Photos</h2>
+      <div class="row g-3">
+        {% for photo in photos %}
+          <figure class="col-6 col-md-3 mb-0">
+            <img src="{{ photo.image.url }}" class="img-fluid rounded" alt="{{ photo.caption|default:player.full_name }}" loading="lazy">
+            {% if photo.caption %}<figcaption class="small text-body-secondary mt-1">{{ photo.caption }}</figcaption>{% endif %}
+          </figure>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock content %}

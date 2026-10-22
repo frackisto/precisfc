@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.urls import reverse
 from django_countries.fields import CountryField
 
 from apps.core.models import SluggedModel, TimeStampedModel
@@ -57,6 +58,9 @@ class Team(SluggedModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("teams:detail", args=[self.slug])
 
 
 class PlayerQuerySet(models.QuerySet):
@@ -155,6 +159,14 @@ class Player(SluggedModel):
     @property
     def is_minor(self):
         return self.birth_date is not None and age_on(self.birth_date) < AGE_OF_MAJORITY
+
+    @property
+    def is_public(self):
+        """Même règle que ``Player.objects.public()``, pour un joueur déjà chargé."""
+        return self.is_published and (self.publication_consent or not self.is_minor)
+
+    def get_absolute_url(self):
+        return reverse("teams:player", args=[self.slug])
 
     @property
     def public_birth_date_label(self):

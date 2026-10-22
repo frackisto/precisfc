@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load players %}
+{% block content %}
+  <article>
+    <header class="text-center mb-5">
+      <p class="small text-uppercase fw-bold text-accent-readable mb-1">
+        <a class="text-reset" href="{{ match.competition_season.get_absolute_url }}">{{ match.competition_season.competition.name }}</a>
+        {% if match.matchday %} · Journée {{ match.matchday }}{% elif match.round_label %} · {{ match.round_label }}{% endif %}
+      </p>
+      <div class="d-flex align-items-center justify-content-center gap-3 gap-md-5 my-3">
+        <div class="match-team text-center">
+          {% if match.home_club.logo %}<img src="{{ match.home_club.logo.url }}" alt="" width="80" height="80" class="club-logo mb-2">{% endif %}
+          <h1 class="h4 mb-0">{{ match.home_club.name }}</h1>
+        </div>
+        <div class="text-center">
+          {% if match.status == "FINISHED" or match.status == "LIVE" %}
+            <p class="display-4 fw-bold mb-0">{{ match.home_score|default_if_none:"0" }} – {{ match.away_score|default_if_none:"0" }}</p>
+            {% if match.home_penalties is not None %}<p class="mb-0">tirs au but {{ match.home_penalties }} – {{ match.away_penalties }}</p>{% endif %}
+            {% if match.status == "LIVE" %}<span class="badge text-bg-danger">En cours</span>{% endif %}
+          {% else %}
+            <p class="display-6 fw-bold mb-0">{{ match.kickoff_at|date:"H:i" }}</p>
+            {% if match.status == "POSTPONED" %}<span class="badge text-bg-warning">Reporté</span>{% elif match.status == "CANCELLED" %}<span class="badge text-bg-secondary">Annulé</span>{% endif %}
+          {% endif %}
+        </div>
+        <div class="match-team text-center">
+          {% if match.away_club.logo %}<img src="{{ match.away_club.logo.url }}" alt="" width="80" height="80" class="club-logo mb-2">{% endif %}
+          <p class="h4 mb-0">{{ match.away_club.name }}</p>
+        </div>
+      </div>
+      <p class="text-body-secondary mb-0">
+        <i class="bi bi-calendar3 me-1" aria-hidden="true"></i><time datetime="{{ match.kickoff_at|date:'c' }}">{{ match.kickoff_at|date:"l j F Y à H:i" }}</time>
+        {% if match.venue %} · <a href="{{ match.venue.get_absolute_url }}">{{ match.venue.name }}</a>{% elif match.venue_name %} · {{ match.venue_name }}{% endif %}
+      </p>
+      {% if match.is_rescheduled %}
+        <p class="small mt-2 mb-0"><i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>Initialement prévu le {{ match.original_kickoff_at|date:"l j F Y à H:i" }}.</p>
+      {% endif %}
+    </header>
+
+    {% with events=match.events.all %}
+      {% if events %}
+        <section class="mb-5" aria-labelledby="titre-faits">
+          <h2 id="titre-faits" class="h4 mb-3">Faits de jeu</h2>
+          <ol class="list-unstyled match-events">
+            {% for event in events %}
+              <li class="d-flex gap-3 py-2 border-bottom {% if event.side == 'AWAY' %}flex-row-reverse text-end{% endif %}">
+                <span class="fw-bold match-minute">{{ event.minute }}{% if event.added_time %}+{{ event.added_time }}{% endif %}’</span>
+                <span>
+                  {% if event.kind == "GOAL" or event.kind == "PENALTY_GOAL" or event.kind == "OWN_GOAL" %}<i class="bi bi-dribbble me-1" aria-hidden="true"></i>{% elif event.kind == "SUBSTITUTION" %}<i class="bi bi-arrow-left-right me-1" aria-hidden="true"></i>{% else %}<i class="bi bi-square-fill me-1 card-{{ event.kind|lower }}" aria-hidden="true"></i>{% endif %}
+                  <strong>{{ event.get_kind_display }}</strong> :
+                  {{ event.player|public_name:event.player_name }}
+                  {% if event.kind == "SUBSTITUTION" %}(remplace {{ event.player_out|public_name:event.player_out_name }}){% endif %}
+                  {% if event.assist_player or event.assist_name %}<span class="small text-body-secondary">(passe de {{ event.assist_player|public_name:event.assist_name }})</span>{% endif %}
+                </span>
+              </li>
+            {% endfor %}
+          </ol>
+        </section>
+      {% endif %}
+    {% endwith %}
+
+    {% if home_lineup or away_lineup %}
+      <section class="mb-5" aria-labelledby="titre-compos">
+        <h2 id="titre-compos" class="h4 mb-3">Compositions</h2>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h3 class="h6">{{ match.home_club.name }}</h3>
+            {% include "matches/partials/lineup.html" with lineup=home_lineup %}
+          </div>
+          <div class="col-md-6">
+            <h3 class="h6">{{ match.away_club.name }}</h3>
+            {% include "matches/partials/lineup.html" with lineup=away_lineup %}
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
+    {% if home_stats or away_stats %}
+      <section class="mb-5" aria-labelledby="titre-stats">
+        <h2 id="titre-stats" class="h4 mb-3">Statistiques</h2>
+        <table class="table text-center align-middle match-stats">
+          <thead><tr><th scope="col">{{ match.home_club.short_name|default:match.home_club.name }}</th><th scope="col"></th><th scope="col">{{ match.away_club.short_name|default:match.away_club.name }}</th></tr></thead>
+          <tbody>
+            <tr><td>{% if home_stats.possession is not None %}{{ home_stats.possession }} %{% endif %}</td><th scope="row">Possession</th><td>{% if away_stats.possession is not None %}{{ away_stats.possession }} %{% endif %}</td></tr>
+            <tr><td>{{ home_stats.shots|default_if_none:"" }}</td><th scope="row">Tirs</th><td>{{ away_stats.shots|default_if_none:"" }}</td></tr>
+            <tr><td>{{ home_stats.shots_on_target|default_if_none:"" }}</td><th scope="row">Tirs cadrés</th><td>{{ away_stats.shots_on_target|default_if_none:"" }}</td></tr>
+            <tr><td>{{ home_stats.corners|default_if_none:"" }}</td><th scope="row">Corners</th><td>{{ away_stats.corners|default_if_none:"" }}</td></tr>
+            <tr><td>{{ home_stats.fouls|default_if_none:"" }}</td><th scope="row">Fautes</th><td>{{ away_stats.fouls|default_if_none:"" }}</td></tr>
+            <tr><td>{{ home_stats.offsides|default_if_none:"" }}</td><th scope="row">Hors-jeu</th><td>{{ away_stats.offsides|default_if_none:"" }}</td></tr>
+            <tr><td>{{ home_stats.saves|default_if_none:"" }}</td><th scope="row">Arrêts</th><td>{{ away_stats.saves|default_if_none:"" }}</td></tr>
+          </tbody>
+        </table>
+      </section>
+    {% endif %}
+
+    {% if match.report %}
+      <section class="mb-5 page-article" aria-labelledby="titre-cr">
+        <h2 id="titre-cr" class="h4 mb-3">Compte rendu</h2>
+        {{ match.report|linebreaks }}
+      </section>
+    {% endif %}
+
+    <dl class="row small text-body-secondary">
+      {% if match.referee %}<dt class="col-sm-3">Arbitre</dt><dd class="col-sm-9">{{ match.referee }}</dd>{% endif %}
+      {% if match.assistant_referees %}<dt class="col-sm-3">Assistants</dt><dd class="col-sm-9">{{ match.assistant_referees }}</dd>{% endif %}
+      {% if match.fourth_official %}<dt class="col-sm-3">4e arbitre</dt><dd class="col-sm-9">{{ match.fourth_official }}</dd>{% endif %}
+      {% if match.attendance %}<dt class="col-sm-3">Affluence</dt><dd class="col-sm-9">{{ match.attendance }} spectateurs</dd>{% endif %}
+    </dl>
+    {% if match.highlights_video %}
+      <a class="btn btn-primary" href="{{ match.highlights_video }}" rel="noopener" target="_blank"><i class="bi bi-play-circle me-1" aria-hidden="true"></i>Voir les temps forts <span class="visually-hidden">(nouvelle fenêtre)</span></a>
+    {% endif %}
+  </article>
+{% endblock content %}

@@ -28,5 +28,6 @@
       <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ match.kickoff_at|date:"l j F Y" }}
       {% if match.venue %}· {{ match.venue.name }}{% elif match.venue_name %}· {{ match.venue_name }}{% endif %}
     </p>
+    <a class="stretched-link small d-block text-center mt-2" href="{{ match.get_absolute_url }}">Détails du match<span class="visually-hidden"> {{ match.home_club.name }} – {{ match.away_club.name }}</span></a>
   </div>
 </div>

@@ -81,3 +81,17 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* Matchs et classements. */
+.match-row-date { min-width: 11rem; }
+.match-minute { min-width: 3rem; }
+.lineup-number { display: inline-block; min-width: 1.75rem; }
+.match-team { max-width: 12rem; }
+.player-card-photo { aspect-ratio: 1; object-fit: cover; }
+.player-placeholder { aspect-ratio: 3 / 4; background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
+.card-yellow, .card-second_yellow { color: #E0A800; }
+.card-red { color: #C1121F; }
+/* Forme : couleurs avec contraste suffisant pour le texte blanc ou noir. */
+.form-V { background-color: #146C43; color: #FFFFFF; }
+.form-N { background-color: #6C757D; color: #FFFFFF; }
+.form-D { background-color: #B02A37; color: #FFFFFF; }

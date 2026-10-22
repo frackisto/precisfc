@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <h1 class="display-6 fw-bold mb-0">Calendrier et résultats</h1>
+    <a class="btn btn-outline-primary" href="{% url 'competitions:list' %}"><i class="bi bi-bar-chart me-1" aria-hidden="true"></i>Classements</a>
+  </div>
+
+  {# Filtres : simple formulaire GET, fonctionne sans JavaScript. #}
+  <form method="get" class="row g-2 align-items-end mb-4" aria-label="Filtrer les matchs">
+    {% for field in filter.form %}
+      <div class="col-sm-6 col-lg-3">
+        <label class="form-label small" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field.as_widget }}
+      </div>
+    {% endfor %}
+    <div class="col-12 d-flex flex-wrap gap-2">
+      <button type="submit" class="btn btn-primary">Filtrer</button>
+      <a class="btn btn-link" href="{% url 'matches:list' %}">Réinitialiser</a>
+      <span class="ms-auto d-flex gap-2">
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'matches:ics' %}{% if query_string %}?{{ query_string }}{% endif %}"><i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>Ajouter à mon agenda (.ics)</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'matches:pdf' %}{% if query_string %}?{{ query_string }}{% endif %}"><i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>Calendrier PDF</a>
+      </span>
+    </div>
+  </form>
+
+  {% if page.object_list %}
+    <ul class="list-group">
+      {% for match in page.object_list %}{% include "matches/partials/match_row.html" %}{% endfor %}
+    </ul>
+    {% include "partials/pagination.html" %}
+  {% else %}
+    <p class="lead">Aucun match ne correspond à ces critères.</p>
+  {% endif %}
+{% endblock content %}

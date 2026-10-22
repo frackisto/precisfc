@@ -1,0 +1,17 @@
+{# Ligne de match (listes) : variable « match ». #}
+<li class="list-group-item match-row">
+  <a class="d-flex flex-wrap align-items-center gap-2 text-decoration-none text-body" href="{{ match.get_absolute_url }}">
+    <time class="small text-body-secondary match-row-date" datetime="{{ match.kickoff_at|date:'c' }}">{{ match.kickoff_at|date:"D j M Y · H:i" }}</time>
+    <span class="flex-grow-1">
+      <span class="fw-semibold">{{ match.home_club.short_name|default:match.home_club.name }}</span>
+      {% if match.status == "FINISHED" %}
+        <span class="badge text-bg-primary mx-1">{{ match.home_score }} – {{ match.away_score }}</span>
+      {% else %}
+        <span class="mx-1 text-body-secondary">–</span>
+      {% endif %}
+      <span class="fw-semibold">{{ match.away_club.short_name|default:match.away_club.name }}</span>
+    </span>
+    {% if match.status == "POSTPONED" %}<span class="badge text-bg-warning">Reporté</span>{% elif match.status == "CANCELLED" %}<span class="badge text-bg-secondary">Annulé</span>{% elif match.status == "LIVE" %}<span class="badge text-bg-danger">En cours</span>{% endif %}
+    <span class="small text-body-secondary">{{ match.competition_season.competition.name }}</span>
+  </a>
+</li>

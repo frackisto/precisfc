@@ -1,6 +1,6 @@
 """Lectures des contenus publics (une requête par bloc, quel que soit le volume)."""
 
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Prefetch
 
 from apps.matches.models import Match
 from apps.news.models import Article
@@ -9,14 +9,12 @@ from apps.teams.models import Player
 
 from .models import Facility, HeroSlide, Page, Trophy, TrophyWin
 
-OWN_CLUB = Q(home_club__is_own_club=True) | Q(away_club__is_own_club=True)
-
 
 def home_blocks(now=None) -> dict:
     return {
         "slides": list(HeroSlide.objects.visible(now)[:5]),
-        "next_match": Match.objects.upcoming(now).filter(OWN_CLUB).first(),
-        "last_result": Match.objects.results().filter(OWN_CLUB).first(),
+        "next_match": Match.objects.upcoming(now).own_club().first(),
+        "last_result": Match.objects.results().own_club().first(),
         "articles": list(
             Article.objects.published(now)
             .select_related("category")

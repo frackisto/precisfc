@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 from apps.core.fields import URLField
@@ -32,6 +33,12 @@ class MatchQuerySet(models.QuerySet):
 
     def results(self):
         return self.public().filter(status="FINISHED").order_by("-kickoff_at")
+
+    def own_club(self):
+        """Matchs de notre club (les autres servent seulement au calcul des classements)."""
+        return self.filter(
+            models.Q(home_club__is_own_club=True) | models.Q(away_club__is_own_club=True)
+        )
 
 
 class Match(SluggedModel):
@@ -130,6 +137,43 @@ class Match(SluggedModel):
     def slug_label(self):
         kickoff = timezone.localtime(self.kickoff_at)
         return f"{self.home_club.name} {self.away_club.name} {kickoff:%Y-%m-%d}"
+
+    def get_absolute_url(self):
+        return reverse("matches:detail", args=[self.slug])
+
+    @property
+    def is_rescheduled(self):
+        return self.original_kickoff_at is not None and self.original_kickoff_at != self.kickoff_at
+
+    def save(self, *args, **kwargs):
+        """Garde l'historique des changements d'horaire (reports).
+
+        L'administration renseigne ``changed_by`` et, si elle le souhaite,
+        ``schedule_change_reason`` avant l'enregistrement.
+        """
+        previous = None
+        if self.pk:
+            previous = (
+                Match.objects.filter(pk=self.pk)
+                .values("kickoff_at", "competition_season_id")
+                .first()
+            )
+        rescheduled = previous is not None and previous["kickoff_at"] != self.kickoff_at
+        if rescheduled and self.original_kickoff_at is None:
+            self.original_kickoff_at = previous["kickoff_at"]
+        # Lu par le signal de recalcul : un match changé d'édition recalcule les deux.
+        self._previous_edition_id = previous["competition_season_id"] if previous else None
+        super().save(*args, **kwargs)
+        if rescheduled:
+            MatchScheduleChange.objects.create(
+                match=self,
+                old_kickoff_at=previous["kickoff_at"],
+                new_kickoff_at=self.kickoff_at,
+                reason=getattr(self, "schedule_change_reason", "") or "Changement d'horaire",
+                changed_by=getattr(self, "changed_by", None),
+            )
+        # Le motif ne vaut que pour ce changement : pas pour un report ultérieur.
+        self.__dict__.pop("schedule_change_reason", None)
 
 
 class MatchScheduleChange(TimeStampedModel):
