@@ -39,6 +39,8 @@ THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
     "axes",
+    "crispy_forms",
+    "crispy_bootstrap5",
 ]
 LOCAL_APPS = [
     "apps.core",
@@ -90,6 +92,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.core.context_processors.site",
             ],
         },
     },
@@ -124,6 +127,10 @@ DATABASES["default"]["CONN_MAX_AGE"] = env.int("DB_CONN_MAX_AGE", default=60)
 DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Formulaires rendus avec les classes Bootstrap 5.
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # --- Authentification ------------------------------------------------------------
 AUTHENTICATION_BACKENDS = [

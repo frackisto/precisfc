@@ -32,6 +32,7 @@ def test_private_files_have_no_public_url(private_storage):
         private_storage.url(name)
 
 
+@pytest.mark.django_db  # la page 404 du site lit les paramètres du club
 def test_private_files_cannot_be_downloaded_by_path(client, private_storage):
     name = private_storage.save("candidatures/photo.jpg", ContentFile(b"jpeg"))
 

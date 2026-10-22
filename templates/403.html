@@ -1,0 +1,4 @@
+{% extends "errors/base_error.html" %}
+{% block title %}Accès refusé — {{ club.name }}{% endblock title %}
+{% block content %}{% with error_code="403" error_title="Accès refusé" %}{{ block.super }}{% endwith %}{% endblock content %}
+{% block error_message %}Vous n'avez pas les droits nécessaires pour consulter cette page.{% if not user.is_authenticated %} Connectez-vous si vous avez un compte.{% endif %}{% endblock error_message %}

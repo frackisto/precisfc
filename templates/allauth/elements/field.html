@@ -1,0 +1,34 @@
+{% load allauth %}
+{% if attrs.type == "checkbox" or attrs.type == "radio" %}
+  <div class="form-check">
+    <input class="form-check-input{% if attrs.errors %} is-invalid{% endif %}" type="{{ attrs.type }}"
+           {% if attrs.name %}name="{{ attrs.name }}"{% endif %} {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+           {% if attrs.value is not None %}value="{{ attrs.value }}"{% endif %}
+           {% if attrs.checked %}checked{% endif %} {% if attrs.required %}required{% endif %} {% if attrs.disabled %}disabled{% endif %}>
+    <label class="form-check-label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
+    {% for error in attrs.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+  </div>
+{% else %}
+  <div>
+    <label class="form-label" for="{{ attrs.id }}">{% slot label %}{% endslot %}</label>
+    {% if attrs.type == "textarea" %}
+      <textarea class="form-control{% if attrs.errors %} is-invalid{% endif %}"
+                {% if attrs.name %}name="{{ attrs.name }}"{% endif %} {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+                {% if attrs.rows %}rows="{{ attrs.rows }}"{% endif %} {% if attrs.required %}required{% endif %}
+                {% if attrs.readonly %}readonly{% endif %} {% if attrs.disabled %}disabled{% endif %}
+                {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}>{% slot value %}{% endslot %}</textarea>
+    {% else %}
+      <input class="form-control{% if attrs.errors %} is-invalid{% endif %}" type="{{ attrs.type }}"
+             {% if attrs.name %}name="{{ attrs.name }}"{% endif %} {% if attrs.id %}id="{{ attrs.id }}"{% endif %}
+             {% if attrs.value is not None %}value="{{ attrs.value }}"{% endif %}
+             {% if attrs.placeholder %}placeholder="{{ attrs.placeholder }}"{% endif %}
+             {% if attrs.autocomplete %}autocomplete="{{ attrs.autocomplete }}"{% endif %}
+             {% if attrs.required %}required{% endif %} {% if attrs.readonly %}readonly{% endif %} {% if attrs.disabled %}disabled{% endif %}
+             {% if attrs.errors %}aria-invalid="true" aria-describedby="{{ attrs.id }}_erreurs"{% endif %}>
+    {% endif %}
+    {% if attrs.errors %}
+      <div class="invalid-feedback" id="{{ attrs.id }}_erreurs">{% for error in attrs.errors %}{{ error }}{% if not forloop.last %}<br>{% endif %}{% endfor %}</div>
+    {% endif %}
+    {% if slots.help_text %}<div class="form-text">{% slot help_text %}{% endslot %}</div>{% endif %}
+  </div>
+{% endif %}

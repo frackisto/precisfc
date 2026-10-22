@@ -1,12 +1,22 @@
-{% extends "allauth/layouts/base.html" %}
-{% comment %}Mise en forme définitive à l'étape 6 (thème Bootstrap).{% endcomment %}
-{% block head_title %}Mon compte — Precis FC{% endblock head_title %}
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}Mon compte — {{ club.name }}{% endblock title %}
 {% block content %}
-  <h1>Mon compte</h1>
-  <p>Connecté avec <strong>{{ user.email }}</strong>.</p>
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Enregistrer</button>
-  </form>
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <h1 class="h2 mb-1">Mon compte</h1>
+      <p class="text-body-secondary mb-4">Connecté avec <strong>{{ user.email }}</strong>
+        · <a href="{% url 'account_email' %}">Adresses e-mail</a>
+        · <a href="{% url 'account_change_password' %}">Mot de passe</a></p>
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

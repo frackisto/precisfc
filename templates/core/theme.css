@@ -1,0 +1,82 @@
+/* Couleurs du club (Paramètres du club, dans l'administration). Fichier généré. */
+:root,
+[data-bs-theme="light"] {
+  --pfc-primary: {{ palette.primary }};
+  --pfc-primary-rgb: {{ palette.primary_rgb }};
+  --pfc-primary-text: {{ palette.primary_text }};
+  --pfc-primary-hover: {{ palette.primary_hover }};
+  --pfc-accent: {{ palette.secondary }};
+  --pfc-accent-rgb: {{ palette.secondary_rgb }};
+  --pfc-accent-text: {{ palette.secondary_text }};
+  --pfc-accent-hover: {{ palette.secondary_hover }};
+  --pfc-light: {{ palette.light }};
+  --pfc-light-text: {{ palette.light_text }};
+  --pfc-link: {{ palette.link_light }};
+
+  --bs-primary: var(--pfc-primary);
+  --bs-primary-rgb: var(--pfc-primary-rgb);
+  --pfc-accent-on-primary: {{ palette.accent_on_primary }};
+  --bs-link-color: var(--pfc-link);
+  --bs-link-color-rgb: {{ palette.link_light_rgb }};
+  --bs-link-hover-color: var(--pfc-link);
+  --bs-link-hover-color-rgb: {{ palette.link_light_rgb }};
+  --bs-tertiary-bg: var(--pfc-light);
+}
+
+[data-bs-theme="dark"] {
+  /* Le bleu marine se lirait mal sur fond sombre : liens dans la couleur d'accent, ajustée. */
+  --pfc-link: {{ palette.link_dark }};
+  --bs-link-color: var(--pfc-link);
+  --bs-link-color-rgb: {{ palette.link_dark_rgb }};
+  --bs-link-hover-color: var(--pfc-link);
+  --bs-link-hover-color-rgb: {{ palette.link_dark_rgb }};
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--pfc-primary);
+  --bs-btn-border-color: var(--pfc-primary);
+  --bs-btn-color: var(--pfc-primary-text);
+  --bs-btn-hover-bg: var(--pfc-primary-hover);
+  --bs-btn-hover-border-color: var(--pfc-primary-hover);
+  --bs-btn-hover-color: var(--pfc-primary-text);
+  --bs-btn-active-bg: var(--pfc-primary-hover);
+  --bs-btn-active-border-color: var(--pfc-primary-hover);
+  --bs-btn-active-color: var(--pfc-primary-text);
+  --bs-btn-disabled-bg: var(--pfc-primary);
+  --bs-btn-disabled-border-color: var(--pfc-primary);
+  --bs-btn-focus-shadow-rgb: var(--pfc-primary-rgb);
+}
+
+.btn-accent {
+  --bs-btn-bg: var(--pfc-accent);
+  --bs-btn-border-color: var(--pfc-accent);
+  --bs-btn-color: var(--pfc-accent-text);
+  --bs-btn-hover-bg: var(--pfc-accent-hover);
+  --bs-btn-hover-border-color: var(--pfc-accent-hover);
+  --bs-btn-hover-color: var(--pfc-accent-text);
+  --bs-btn-active-bg: var(--pfc-accent-hover);
+  --bs-btn-active-border-color: var(--pfc-accent-hover);
+  --bs-btn-active-color: var(--pfc-accent-text);
+  --bs-btn-focus-shadow-rgb: var(--pfc-accent-rgb);
+}
+
+.bg-accent { background-color: var(--pfc-accent) !important; color: var(--pfc-accent-text) !important; }
+.text-accent-readable { color: var(--pfc-link) !important; }
+
+.navbar-club,
+.hero-club {
+  background-color: var(--pfc-primary);
+  color: var(--pfc-primary-text);
+}
+.navbar-club {
+  --bs-navbar-color: var(--pfc-primary-text);
+  --bs-navbar-hover-color: var(--pfc-accent-on-primary);
+  --bs-navbar-active-color: var(--pfc-accent-on-primary);
+  --bs-navbar-brand-color: var(--pfc-primary-text);
+  --bs-navbar-brand-hover-color: var(--pfc-accent-on-primary);
+  --bs-navbar-toggler-border-color: var(--pfc-primary-text);
+}
+.navbar-club .navbar-toggler-icon {
+  filter: {% if palette.primary_text == "#FFFFFF" %}invert(1){% else %}none{% endif %};
+}
+.hero-club .lead { color: var(--pfc-accent-on-primary); }

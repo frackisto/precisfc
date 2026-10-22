@@ -1,0 +1,4 @@
+{% extends "errors/base_error.html" %}
+{% block title %}Requête invalide — {{ club.name }}{% endblock title %}
+{% block content %}{% with error_code="400" error_title="Requête invalide" %}{{ block.super }}{% endwith %}{% endblock content %}
+{% block error_message %}Le serveur n'a pas pu comprendre cette demande.{% endblock error_message %}

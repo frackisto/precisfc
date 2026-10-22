@@ -1,0 +1,22 @@
+{% load static %}<!DOCTYPE html>
+{% comment %}
+Autonome : affichée même si la base de données est inaccessible (aucun paramètre du
+club, aucun processeur de contexte). Couleurs par défaut du club écrites en dur.
+{% endcomment %}
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Erreur du serveur — Precis FC</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/error-500.css' %}">
+</head>
+<body class="d-flex flex-column min-vh-100 error-500">
+  <main class="container text-center my-auto py-5">
+    <p class="display-1 fw-bold error-500-code" aria-hidden="true">500</p>
+    <h1 class="h2 mb-3">Une erreur est survenue</h1>
+    <p class="lead mb-4">Le problème a été signalé à l'équipe technique. Merci de réessayer dans quelques instants.</p>
+    <a class="btn btn-light" href="/">Retour à l'accueil</a>
+  </main>
+</body>
+</html>

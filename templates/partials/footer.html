@@ -1,0 +1,33 @@
+{% now "Y" as current_year %}
+<footer class="site-footer mt-auto">
+  <div class="container py-5">
+    <div class="row g-4">
+      <div class="col-md-5">
+        <p class="h5 fw-bold mb-2">{{ club.name }}</p>
+        {% if club.slogan %}<p class="mb-2">{{ club.slogan }}</p>{% endif %}
+        {% if club.founded_year %}<p class="small mb-0">Fondé en {{ club.founded_year }}</p>{% endif %}
+      </div>
+      <div class="col-md-4">
+        <p class="h6 text-uppercase fw-bold">Contact</p>
+        <ul class="list-unstyled small mb-0">
+          {% if club.address %}<li><i class="bi bi-geo-alt me-2" aria-hidden="true"></i>{{ club.address }}</li>{% endif %}
+          {% if club.phone %}<li><i class="bi bi-telephone me-2" aria-hidden="true"></i><a href="tel:{{ club.phone|cut:' ' }}">{{ club.phone }}</a></li>{% endif %}
+          {% if club.email %}<li><i class="bi bi-envelope me-2" aria-hidden="true"></i><a href="mailto:{{ club.email }}">{{ club.email }}</a></li>{% endif %}
+        </ul>
+      </div>
+      <div class="col-md-3">
+        <p class="h6 text-uppercase fw-bold">Suivez-nous</p>
+        <ul class="list-inline fs-4 mb-0 social-links">
+          {% if club.facebook_url %}<li class="list-inline-item"><a href="{{ club.facebook_url }}" rel="noopener" target="_blank" aria-label="Facebook (nouvelle fenêtre)"><i class="bi bi-facebook" aria-hidden="true"></i></a></li>{% endif %}
+          {% if club.x_url %}<li class="list-inline-item"><a href="{{ club.x_url }}" rel="noopener" target="_blank" aria-label="X (nouvelle fenêtre)"><i class="bi bi-twitter-x" aria-hidden="true"></i></a></li>{% endif %}
+          {% if club.instagram_url %}<li class="list-inline-item"><a href="{{ club.instagram_url }}" rel="noopener" target="_blank" aria-label="Instagram (nouvelle fenêtre)"><i class="bi bi-instagram" aria-hidden="true"></i></a></li>{% endif %}
+          {% if club.youtube_url %}<li class="list-inline-item"><a href="{{ club.youtube_url }}" rel="noopener" target="_blank" aria-label="YouTube (nouvelle fenêtre)"><i class="bi bi-youtube" aria-hidden="true"></i></a></li>{% endif %}
+          {% if club.tiktok_url %}<li class="list-inline-item"><a href="{{ club.tiktok_url }}" rel="noopener" target="_blank" aria-label="TikTok (nouvelle fenêtre)"><i class="bi bi-tiktok" aria-hidden="true"></i></a></li>{% endif %}
+          {% if club.linkedin_url %}<li class="list-inline-item"><a href="{{ club.linkedin_url }}" rel="noopener" target="_blank" aria-label="LinkedIn (nouvelle fenêtre)"><i class="bi bi-linkedin" aria-hidden="true"></i></a></li>{% endif %}
+        </ul>
+      </div>
+    </div>
+    <hr class="my-4">
+    <p class="small mb-0">© {{ current_year }} {{ club.name }}. Tous droits réservés.</p>
+  </div>
+</footer>

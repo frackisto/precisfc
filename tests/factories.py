@@ -19,10 +19,10 @@ from apps.ticketing.models import Booking
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
-        skip_postgeneration_save = True
 
     email = factory.Sequence(lambda n: f"supporter{n}@precisfc.test")
-    password = factory.PostGenerationMethodCall("set_password", "Mot-de-passe-test-2026")
+    # Haché avant l'enregistrement : la session ouverte par force_login() reste valide.
+    password = factory.django.Password("Mot-de-passe-test-2026")
 
 
 class SeasonFactory(factory.django.DjangoModelFactory):

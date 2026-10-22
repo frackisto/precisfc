@@ -1,0 +1,4 @@
+{% extends "errors/base_error.html" %}
+{% block title %}Formulaire expiré — {{ club.name }}{% endblock title %}
+{% block content %}{% with error_code="403" error_title="Formulaire expiré" %}{{ block.super }}{% endwith %}{% endblock content %}
+{% block error_message %}Pour votre sécurité, ce formulaire n'est plus valable (page restée ouverte trop longtemps, ou cookies désactivés). Revenez à la page précédente, actualisez-la, puis réessayez.{% endblock error_message %}

@@ -1,6 +1,8 @@
+from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 
+from .colors import theme_palette
 from .fields import URLField
 from .utils import unique_slug
 
@@ -215,8 +217,31 @@ class ClubSettings(SingletonModel):
             ("view_financial_reports", "Peut consulter les indicateurs financiers"),
         ]
 
+    CACHE_KEY = "core:club_settings"
+
     def __str__(self):
         return "Paramètres du club"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(self.CACHE_KEY)
+
+    @classmethod
+    def cached(cls):
+        """Paramètres lus sur chaque page : mis en cache, rafraîchis à chaque enregistrement."""
+        settings_obj = cache.get(cls.CACHE_KEY)
+        if settings_obj is None:
+            settings_obj = cls.load()
+            cache.set(cls.CACHE_KEY, settings_obj, timeout=3600)
+        return settings_obj
+
+    @property
+    def palette(self):
+        return theme_palette(self.color_primary, self.color_secondary, self.color_light)
+
+    @property
+    def theme_version(self):
+        return f"{self.updated_at:%Y%m%d%H%M%S}" if self.updated_at else "0"
 
 
 class HeroSlide(TimeStampedModel):

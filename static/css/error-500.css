@@ -1,0 +1,3 @@
+/* Page 500 autonome : couleurs par défaut du club (la base peut être inaccessible). */
+.error-500 { background: #0B1F3A; color: #FFFFFF; }
+.error-500 .error-500-code { color: #C9A227; }

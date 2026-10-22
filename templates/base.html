@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr" class="no-js" data-bs-theme="{% if color_theme == 'dark' %}dark{% else %}light{% endif %}" data-theme-choice="{{ color_theme }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  {# Avant tout affichage : applique le thème et signale que JavaScript est actif. #}
+  <script src="{% static 'js/theme-init.js' %}"></script>
+  <title>{% block title %}{{ club.name }}{% if club.slogan %} — {{ club.slogan }}{% endif %}{% endblock title %}</title>
+  <meta name="description" content="{% block meta_description %}{{ club.default_meta_description|default:club.about_short|truncatechars:160 }}{% endblock meta_description %}">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="theme-color" content="{{ club.color_primary }}">
+  {% if club.favicon %}<link rel="icon" href="{{ club.favicon.url }}">{% endif %}
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+  <link rel="stylesheet" href="{% url 'core:theme_css' %}?v={{ club.theme_version }}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  {% block extra_head %}{% endblock extra_head %}
+</head>
+<body class="d-flex flex-column min-vh-100">
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+  {% include "partials/header.html" %}
+
+  <main id="contenu" class="flex-grow-1" tabindex="-1">
+    {% block breadcrumbs %}{% endblock breadcrumbs %}
+    {% include "partials/messages.html" %}
+    {% block main %}
+      <div class="container py-4 py-lg-5">
+        {% block content %}{% endblock content %}
+      </div>
+    {% endblock main %}
+  </main>
+
+  {% include "partials/footer.html" %}
+
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'js/app.js' %}"></script>
+  {% block extra_js %}{% endblock extra_js %}
+</body>
+</html>

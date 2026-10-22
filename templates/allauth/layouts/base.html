@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{# Pages de compte (allauth) : dans le gabarit du site, au centre d'une carte. #}
+{% block title %}{% block head_title %}{% endblock head_title %} — {{ club.name }}{% endblock title %}
+{% block main %}
+  <div class="container py-4 py-lg-5">
+    <div class="auth-card mx-auto">
+      <div class="card shadow-sm">
+        <div class="card-body p-4 p-md-5">
+          {% block content %}{% endblock content %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock main %}

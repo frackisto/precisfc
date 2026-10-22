@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% comment %}Page d'accueil provisoire : la page complète (bannières, matchs, actualités…) arrive à l'étape 7.{% endcomment %}
+
+{% block main %}
+  <section class="hero-club py-5">
+    <div class="container py-lg-5 text-center">
+      <h1 class="display-4 fw-bold">{{ club.name }}</h1>
+      {% if club.slogan %}<p class="lead mb-4">{{ club.slogan }}</p>{% endif %}
+      <p class="mb-0">Le nouveau site officiel du club arrive très bientôt.</p>
+    </div>
+  </section>
+  <div class="container py-5">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h5 card-title"><i class="bi bi-person-plus me-2 text-accent-readable" aria-hidden="true"></i>Espace supporter</h2>
+            <p class="card-text">Créez votre compte pour suivre le club, acheter vos billets et vos maillots.</p>
+            {% if user.is_authenticated %}
+              <a class="btn btn-primary" href="{% url 'accounts:profile' %}">Mon compte</a>
+            {% elif signup_open %}
+              <a class="btn btn-primary" href="{% url 'account_signup' %}">Créer un compte</a>
+            {% else %}
+              <a class="btn btn-primary" href="{% url 'account_login' %}">Se connecter</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h5 card-title"><i class="bi bi-calendar-event me-2 text-accent-readable" aria-hidden="true"></i>Matchs</h2>
+            <p class="card-text">Calendrier, résultats et classements : bientôt en ligne.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h5 card-title"><i class="bi bi-bag me-2 text-accent-readable" aria-hidden="true"></i>Boutique</h2>
+            <p class="card-text">Maillots et produits officiels : bientôt en ligne.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock main %}

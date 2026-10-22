@@ -1,0 +1,11 @@
+{# Simple formulaire : fonctionne sans JavaScript ; app.js l'accélère (sans rechargement). #}
+<form method="post" action="{% url 'core:set_theme' %}" class="theme-toggle" data-theme-toggle>
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <button type="submit" name="theme" value="{% if color_theme == 'dark' %}light{% else %}dark{% endif %}"
+          class="btn btn-link nav-link" aria-label="{% if color_theme == 'dark' %}Passer en mode clair{% else %}Passer en mode sombre{% endif %}"
+          title="Mode clair ou sombre">
+    <i class="bi bi-moon-stars-fill theme-icon-dark" aria-hidden="true"></i>
+    <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
+  </button>
+</form>
