@@ -57,6 +57,27 @@ button:focus-visible,
   color: var(--pfc-link);
 }
 
+/* Accueil : bannières. Dégradé sombre sous le texte, lisible quelle que soit la photo. */
+.hero-image { height: clamp(18rem, 55vh, 35rem); object-fit: cover; }
+.hero-caption {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 4rem 10% 3rem;
+  color: #FFFFFF;
+  background: linear-gradient(to top, rgba(0, 0, 0, .8), rgba(0, 0, 0, 0));
+}
+.hero-caption .lead { color: #FFFFFF; }
+
+.article-cover { aspect-ratio: 16 / 9; object-fit: cover; }
+.club-logo, .trophy-image { object-fit: contain; }
+.player-thumb, .person-photo { object-fit: cover; }
+.partner-logos img { max-width: 10rem; object-fit: contain; }
+.card-link-club { color: inherit; transition: transform .15s ease-in-out; }
+.card-link-club:hover, .card-link-club:focus-visible { transform: translateY(-2px); }
+.page-article { max-width: 48rem; }
+.key-figures dt { color: var(--bs-secondary-color); }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }

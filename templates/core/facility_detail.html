@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load l10n %}
+{% block content %}
+  <article>
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ facility.get_kind_display }}</p>
+    <h1 class="display-6 fw-bold mb-4">{{ facility.name }}</h1>
+    <div class="row g-4">
+      <div class="col-lg-8">
+        {% if facility.cover %}<img src="{{ facility.cover.url }}" class="img-fluid rounded mb-4" alt="">{% endif %}
+        {% if facility.description %}<div>{{ facility.description|linebreaks }}</div>{% endif %}
+      </div>
+      <aside class="col-lg-4">
+        <ul class="list-unstyled">
+          {% if facility.capacity %}<li class="mb-2"><i class="bi bi-people me-2" aria-hidden="true"></i>{{ facility.capacity }} places</li>{% endif %}
+          {% if facility.address %}<li class="mb-2"><i class="bi bi-geo-alt me-2" aria-hidden="true"></i>{{ facility.address }}</li>{% endif %}
+        </ul>
+        {% if facility.lat is not None and facility.lng is not None %}
+          {% comment %}Lien vers OpenStreetMap plutôt qu’une carte intégrée : aucune clé ni traceur tiers.
+             Coordonnées non localisées : un point décimal, jamais la virgule française.{% endcomment %}
+          <a class="btn btn-outline-primary" rel="noopener" target="_blank"
+             href="https://www.openstreetmap.org/?mlat={{ facility.lat|unlocalize }}&amp;mlon={{ facility.lng|unlocalize }}#map=16/{{ facility.lat|unlocalize }}/{{ facility.lng|unlocalize }}">
+            <i class="bi bi-map me-1" aria-hidden="true"></i>Voir sur la carte <span class="visually-hidden">(nouvelle fenêtre)</span>
+          </a>
+        {% endif %}
+      </aside>
+    </div>
+    {% with photos=facility.photos.all %}
+      {% if photos %}
+        <section class="mt-5" aria-labelledby="titre-photos">
+          <h2 id="titre-photos" class="h4 mb-3">Photos</h2>
+          <div class="row g-3">
+            {% for photo in photos %}
+              <figure class="col-6 col-md-4 mb-0">
+                <img src="{{ photo.image.url }}" class="img-fluid rounded" alt="{{ photo.caption }}" loading="lazy">
+                {% if photo.caption %}<figcaption class="small text-body-secondary mt-1">{{ photo.caption }}</figcaption>{% endif %}
+              </figure>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    {% endwith %}
+  </article>
+{% endblock content %}

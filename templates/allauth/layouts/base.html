@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock robots %}
 {# Pages de compte (allauth) : dans le gabarit du site, au centre d'une carte. #}
 {% block title %}{% block head_title %}{% endblock head_title %} — {{ club.name }}{% endblock title %}
 {% block main %}

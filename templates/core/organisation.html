@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="display-6 fw-bold mb-4">Organigramme</h1>
+  {% regroup members by get_department_display as departments %}
+  {% for department in departments %}
+    <section class="mb-5" aria-labelledby="dept-{{ forloop.counter }}">
+      <h2 id="dept-{{ forloop.counter }}" class="h4 mb-3">{{ department.grouper }}</h2>
+      <div class="row g-4">
+        {% for member in department.list %}
+          <div class="col-sm-6 col-lg-3">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                {% if member.photo %}<img src="{{ member.photo.url }}" alt="" width="96" height="96" class="rounded-circle person-photo mb-3" loading="lazy">{% else %}<i class="bi bi-person-circle display-4 text-body-secondary" aria-hidden="true"></i>{% endif %}
+                <h3 class="h6 mb-1">{{ member.full_name }}</h3>
+                <p class="small text-accent-readable fw-semibold mb-0">{{ member.role_title }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% empty %}
+    <p class="lead">L’organigramme sera bientôt publié.</p>
+  {% endfor %}
+{% endblock content %}

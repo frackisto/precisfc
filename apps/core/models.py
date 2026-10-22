@@ -1,6 +1,8 @@
 from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
+from django.urls import reverse
+from django.utils import timezone
 
 from .colors import theme_palette
 from .fields import URLField
@@ -131,6 +133,9 @@ class Facility(SluggedModel):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("core:facility_detail", args=[self.slug])
+
 
 class FacilityPhoto(TimeStampedModel):
     facility = models.ForeignKey(
@@ -244,6 +249,16 @@ class ClubSettings(SingletonModel):
         return f"{self.updated_at:%Y%m%d%H%M%S}" if self.updated_at else "0"
 
 
+class HeroSlideQuerySet(models.QuerySet):
+    def visible(self, now=None):
+        """Bannières actives dont la période d'affichage (facultative) est en cours."""
+        now = now or timezone.now()
+        return self.filter(is_active=True).filter(
+            models.Q(starts_at__isnull=True) | models.Q(starts_at__lte=now),
+            models.Q(ends_at__isnull=True) | models.Q(ends_at__gt=now),
+        )
+
+
 class HeroSlide(TimeStampedModel):
     """Bannière défilante de la page d'accueil."""
 
@@ -256,6 +271,8 @@ class HeroSlide(TimeStampedModel):
     is_active = models.BooleanField("active", default=True)
     starts_at = models.DateTimeField("début d'affichage", null=True, blank=True)
     ends_at = models.DateTimeField("fin d'affichage", null=True, blank=True)
+
+    objects = HeroSlideQuerySet.as_manager()
 
     class Meta:
         verbose_name = "bannière d'accueil"
@@ -304,6 +321,9 @@ class Page(SluggedModel, SEOFields):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse("core:page_detail", args=[self.slug])
 
 
 class Value(TimeStampedModel):

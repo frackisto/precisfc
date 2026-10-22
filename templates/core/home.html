@@ -1,47 +1,115 @@
 {% extends "base.html" %}
-{% comment %}Page d'accueil provisoire : la page complète (bannières, matchs, actualités…) arrive à l'étape 7.{% endcomment %}
 
 {% block main %}
-  <section class="hero-club py-5">
-    <div class="container py-lg-5 text-center">
-      <h1 class="display-4 fw-bold">{{ club.name }}</h1>
-      {% if club.slogan %}<p class="lead mb-4">{{ club.slogan }}</p>{% endif %}
-      <p class="mb-0">Le nouveau site officiel du club arrive très bientôt.</p>
-    </div>
-  </section>
+  {# --- Bannières : carrousel avec JavaScript, première bannière seule sans. --- #}
+  {% if slides %}
+    <section id="bannieres" class="carousel slide hero-carousel" data-bs-ride="carousel" aria-label="Actualité du club">
+      <div class="carousel-inner">
+        {% for slide in slides %}
+          <div class="carousel-item{% if forloop.first %} active{% endif %}">
+            <img src="{{ slide.image.url }}" class="d-block w-100 hero-image" alt="{{ slide.title }}"{% if not forloop.first %} loading="lazy"{% endif %}>
+            <div class="carousel-caption hero-caption text-start">
+              {% if forloop.first %}<h1 class="display-5 fw-bold">{{ slide.title }}</h1>{% else %}<h2 class="display-5 fw-bold">{{ slide.title }}</h2>{% endif %}
+              {% if slide.subtitle %}<p class="lead">{{ slide.subtitle }}</p>{% endif %}
+              {% if slide.cta_url and slide.cta_label %}<a class="btn btn-accent btn-lg" href="{{ slide.cta_url }}">{{ slide.cta_label }}</a>{% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% if slides|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#bannieres" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Bannière précédente</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bannieres" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Bannière suivante</span>
+        </button>
+      {% endif %}
+    </section>
+  {% else %}
+    <section class="hero-club py-5">
+      <div class="container py-lg-5 text-center">
+        <h1 class="display-4 fw-bold">{{ club.name }}</h1>
+        {% if club.slogan %}<p class="lead mb-0">{{ club.slogan }}</p>{% endif %}
+      </div>
+    </section>
+  {% endif %}
+
   <div class="container py-5">
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100">
-          <div class="card-body">
-            <h2 class="h5 card-title"><i class="bi bi-person-plus me-2 text-accent-readable" aria-hidden="true"></i>Espace supporter</h2>
-            <p class="card-text">Créez votre compte pour suivre le club, acheter vos billets et vos maillots.</p>
-            {% if user.is_authenticated %}
-              <a class="btn btn-primary" href="{% url 'accounts:profile' %}">Mon compte</a>
-            {% elif signup_open %}
-              <a class="btn btn-primary" href="{% url 'account_signup' %}">Créer un compte</a>
-            {% else %}
-              <a class="btn btn-primary" href="{% url 'account_login' %}">Se connecter</a>
-            {% endif %}
-          </div>
+    {# --- Matchs --- #}
+    {% if next_match or last_result %}
+      <section class="mb-5" aria-labelledby="titre-matchs">
+        <h2 id="titre-matchs" class="h3 mb-4">Matchs</h2>
+        <div class="row g-4">
+          {% if next_match %}<div class="col-md-6">{% include "matches/partials/match_card.html" with match=next_match heading="Prochain match" %}</div>{% endif %}
+          {% if last_result %}<div class="col-md-6">{% include "matches/partials/match_card.html" with match=last_result heading="Dernier résultat" %}</div>{% endif %}
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card h-100">
-          <div class="card-body">
-            <h2 class="h5 card-title"><i class="bi bi-calendar-event me-2 text-accent-readable" aria-hidden="true"></i>Matchs</h2>
-            <p class="card-text">Calendrier, résultats et classements : bientôt en ligne.</p>
-          </div>
+      </section>
+    {% endif %}
+
+    {# --- Actualités --- #}
+    {% if articles %}
+      <section class="mb-5" aria-labelledby="titre-actualites">
+        <h2 id="titre-actualites" class="h3 mb-4">Actualités</h2>
+        <div class="row g-4">
+          {% for article in articles %}
+            <div class="col-md-6 col-lg-4">
+              <article class="card h-100">
+                {% if article.cover_image %}<img src="{{ article.cover_image.url }}" class="card-img-top article-cover" alt="{{ article.cover_alt }}" loading="lazy">{% endif %}
+                <div class="card-body">
+                  <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ article.category.name|default:article.get_kind_display }}</p>
+                  <h3 class="h5 card-title">{{ article.title }}</h3>
+                  {% if article.excerpt %}<p class="card-text">{{ article.excerpt }}</p>{% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-0 small text-body-secondary">
+                  <time datetime="{{ article.publish_at|date:'c' }}">{{ article.publish_at|date:"j F Y" }}</time>
+                </div>
+              </article>
+            </div>
+          {% endfor %}
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card h-100">
-          <div class="card-body">
-            <h2 class="h5 card-title"><i class="bi bi-bag me-2 text-accent-readable" aria-hidden="true"></i>Boutique</h2>
-            <p class="card-text">Maillots et produits officiels : bientôt en ligne.</p>
-          </div>
+      </section>
+    {% endif %}
+
+    {# --- Présentation du club --- #}
+    <section class="mb-5" aria-labelledby="titre-club">
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+          <h2 id="titre-club" class="h3">Le club</h2>
+          <p class="lead">{{ club.about_short|default:club.slogan }}</p>
+          <a class="btn btn-primary" href="{% url 'core:club' %}">Découvrir {{ club.short_name|default:club.name }}</a>
         </div>
+        {% if featured_players %}
+          <div class="col-lg-5">
+            <h3 class="h5">Joueurs à suivre</h3>
+            <ul class="list-unstyled row g-3 mb-0">
+              {% for player in featured_players %}
+                <li class="col-6">
+                  <div class="d-flex align-items-center gap-2">
+                    {% if player.photo %}<img src="{{ player.photo.url }}" alt="" width="48" height="48" class="rounded-circle player-thumb" loading="lazy">{% endif %}
+                    <span><strong>{{ player.full_name }}</strong><br><span class="small text-body-secondary">{% if player.shirt_number %}n° {{ player.shirt_number }} · {% endif %}{{ player.get_position_display }}</span></span>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
       </div>
-    </div>
+    </section>
+
+    {# --- Partenaires --- #}
+    {% if partners %}
+      <section aria-labelledby="titre-partenaires">
+        <h2 id="titre-partenaires" class="h3 mb-4">Nos partenaires</h2>
+        <ul class="list-unstyled d-flex flex-wrap align-items-center gap-4 mb-0 partner-logos">
+          {% for partner in partners %}
+            <li>
+              {% if partner.url %}<a href="{{ partner.url }}" rel="noopener sponsored" target="_blank">{% endif %}
+                <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" height="56" loading="lazy">
+              {% if partner.url %}</a>{% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+    {% endif %}
   </div>
 {% endblock main %}

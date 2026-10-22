@@ -12,6 +12,28 @@ class Side(models.TextChoices):
     AWAY = "AWAY", "Extérieur"
 
 
+class MatchQuerySet(models.QuerySet):
+    def public(self):
+        return self.filter(is_published=True).select_related(
+            "home_club",
+            "away_club",
+            "competition_season__competition",
+            "competition_season__season",
+            "venue",
+        )
+
+    def upcoming(self, now=None):
+        now = now or timezone.now()
+        return (
+            self.public()
+            .filter(kickoff_at__gte=now, status__in=["SCHEDULED", "LIVE", "POSTPONED"])
+            .order_by("kickoff_at")
+        )
+
+    def results(self):
+        return self.public().filter(status="FINISHED").order_by("-kickoff_at")
+
+
 class Match(SluggedModel):
     class Status(models.TextChoices):
         SCHEDULED = "SCHEDULED", "Programmé"
@@ -73,6 +95,8 @@ class Match(SluggedModel):
     report = models.TextField("compte rendu", blank=True)
     highlights_video = URLField("vidéo des temps forts", blank=True)
     is_published = models.BooleanField("publié", default=True)
+
+    objects = MatchQuerySet.as_manager()
 
     class Meta:
         verbose_name = "match"

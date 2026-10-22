@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 from apps.core.models import SEOFields, SluggedModel
 
@@ -29,6 +30,14 @@ class Tag(SluggedModel):
 
     def __str__(self):
         return self.name
+
+
+class ArticleQuerySet(models.QuerySet):
+    def published(self, now=None):
+        """Articles visibles : publiés, ou programmés dont l'heure est passée (même si le
+        cron qui change leur statut n'est pas encore passé)."""
+        now = now or timezone.now()
+        return self.filter(status__in=["PUBLISHED", "SCHEDULED"], publish_at__lte=now)
 
 
 class Article(SluggedModel, SEOFields):
@@ -112,6 +121,8 @@ class Article(SluggedModel, SEOFields):
     is_featured = models.BooleanField("à la une", default=False)
     # Lien de prévisualisation d'un brouillon, imprévisible et renouvelable.
     preview_token = models.UUIDField("jeton de prévisualisation", default=uuid.uuid4, unique=True)
+
+    objects = ArticleQuerySet.as_manager()
 
     class Meta:
         verbose_name = "article"

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="display-6 fw-bold mb-4">Palmarès</h1>
+  {% if trophies %}
+    <div class="row g-4">
+      {% for trophy in trophies %}
+        <div class="col-md-6 col-lg-4">
+          <section class="card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                {% if trophy.image %}<img src="{{ trophy.image.url }}" alt="" width="64" height="64" class="trophy-image" loading="lazy">{% else %}<i class="bi bi-trophy-fill fs-1 text-accent-readable" aria-hidden="true"></i>{% endif %}
+                <div>
+                  <h2 class="h5 mb-0">{{ trophy.name }}</h2>
+                  {% if trophy.competition_name %}<p class="small text-body-secondary mb-0">{{ trophy.competition_name }}{% if trophy.category %} · {{ trophy.category }}{% endif %}</p>{% endif %}
+                </div>
+                <span class="badge text-bg-primary ms-auto fs-6" title="Nombre de titres">× {{ trophy.win_count }}</span>
+              </div>
+              <ul class="list-inline mb-0">
+                {% for win in trophy.wins.all %}<li class="list-inline-item badge rounded-pill bg-accent mb-1">{{ win.season_label|default:win.year }}</li>{% endfor %}
+              </ul>
+            </div>
+          </section>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="lead">Le palmarès sera bientôt publié.</p>
+  {% endif %}
+{% endblock content %}

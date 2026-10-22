@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="display-6 fw-bold mb-4">Infrastructures</h1>
+  <div class="row g-4">
+    {% for facility in facilities %}
+      <div class="col-md-6 col-lg-4">
+        <a class="card h-100 text-decoration-none card-link-club" href="{{ facility.get_absolute_url }}">
+          {% if facility.cover %}<img src="{{ facility.cover.url }}" class="card-img-top article-cover" alt="" loading="lazy">{% endif %}
+          <div class="card-body">
+            <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ facility.get_kind_display }}</p>
+            <h2 class="h5 card-title mb-1">{{ facility.name }}</h2>
+            {% if facility.capacity %}<p class="small text-body-secondary mb-0">{{ facility.capacity }} places</p>{% endif %}
+          </div>
+        </a>
+      </div>
+    {% empty %}
+      <p class="lead">Cette page sera bientôt complétée.</p>
+    {% endfor %}
+  </div>
+{% endblock content %}

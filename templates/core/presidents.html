@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="display-6 fw-bold mb-4">Présidents successifs</h1>
+  {% if presidents %}
+    <ol class="list-unstyled row g-4">
+      {% for president in presidents %}
+        <li class="col-md-6">
+          <div class="d-flex gap-3">
+            {% if president.photo %}<img src="{{ president.photo.url }}" alt="" width="96" height="96" class="rounded person-photo" loading="lazy">{% endif %}
+            <div>
+              <h2 class="h5 mb-1">{{ president.full_name }}</h2>
+              <p class="small fw-semibold text-accent-readable mb-2">{{ president.start_year }} – {% if president.end_year %}{{ president.end_year }}{% else %}aujourd’hui{% endif %}</p>
+              {% if president.bio %}<p class="mb-0">{{ president.bio }}</p>{% endif %}
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="lead">Cette page sera bientôt complétée.</p>
+  {% endif %}
+{% endblock content %}

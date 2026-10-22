@@ -229,7 +229,10 @@ def test_app_js_adds_the_csrf_token_to_ajax_requests():
 def test_pages_load_no_external_resources(client):
     page = html(client.get("/"))
 
-    assert not re.search(r'(src|href)="(https?:)?//', page.split("<footer")[0])
+    # Ressources téléchargées par le navigateur : scripts, feuilles de style, images.
+    # (Les liens canoniques et Open Graph sont des adresses absolues, pas des ressources.)
+    external = r'(<script[^>]*src|<link[^>]*rel="stylesheet"[^>]*href|<img[^>]*src)="(https?:)?//'
+    assert not re.search(external, page)
 
 
 # --- Pages d'erreur ------------------------------------------------------------------

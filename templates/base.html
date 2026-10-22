@@ -1,12 +1,17 @@
-{% load static %}<!DOCTYPE html>
+{% load static seo_tags %}<!DOCTYPE html>
 <html lang="fr" class="no-js" data-bs-theme="{% if color_theme == 'dark' %}dark{% else %}light{% endif %}" data-theme-choice="{{ color_theme }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {# Avant tout affichage : applique le thème et signale que JavaScript est actif. #}
   <script src="{% static 'js/theme-init.js' %}"></script>
-  <title>{% block title %}{{ club.name }}{% if club.slogan %} — {{ club.slogan }}{% endif %}{% endblock title %}</title>
-  <meta name="description" content="{% block meta_description %}{{ club.default_meta_description|default:club.about_short|truncatechars:160 }}{% endblock meta_description %}">
+  <title>{% block title %}{% if seo.title and seo.title != club.name %}{{ seo.title }} — {{ club.name }}{% else %}{{ club.name }}{% if club.slogan %} — {{ club.slogan }}{% endif %}{% endif %}{% endblock title %}</title>
+  {% include "partials/seo.html" %}
+  {% block robots %}{% endblock robots %}
+  {% block structured_data %}
+    {% if organization_jsonld %}{% jsonld organization_jsonld %}{% endif %}
+    {% if breadcrumbs_jsonld %}{% jsonld breadcrumbs_jsonld %}{% endif %}
+  {% endblock structured_data %}
   <meta name="csrf-token" content="{{ csrf_token }}">
   <meta name="theme-color" content="{{ club.color_primary }}">
   {% if club.favicon %}<link rel="icon" href="{{ club.favicon.url }}">{% endif %}
@@ -22,7 +27,7 @@
   {% include "partials/header.html" %}
 
   <main id="contenu" class="flex-grow-1" tabindex="-1">
-    {% block breadcrumbs %}{% endblock breadcrumbs %}
+    {% block breadcrumbs %}{% include "partials/breadcrumbs.html" %}{% endblock breadcrumbs %}
     {% include "partials/messages.html" %}
     {% block main %}
       <div class="container py-4 py-lg-5">

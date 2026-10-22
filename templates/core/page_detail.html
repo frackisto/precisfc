@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <article class="mx-auto page-article">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ page.get_section_display }}</p>
+    <h1 class="display-6 fw-bold mb-4">{{ page.title }}</h1>
+    {% if page.cover %}<img src="{{ page.cover.url }}" class="img-fluid rounded mb-4" alt="">{% endif %}
+    {# Texte échappé tant que l'éditeur riche avec assainissement HTML n'est pas en place (étape 9). #}
+    <div class="page-body">{{ page.body|linebreaks }}</div>
+  </article>
+{% endblock content %}

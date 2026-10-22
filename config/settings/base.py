@@ -31,6 +31,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
 ]
 # Les applications tierces sont ajoutées à l'étape où elles sont utilisées.
 THIRD_PARTY_APPS = [

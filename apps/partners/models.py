@@ -1,7 +1,17 @@
 from django.db import models
+from django.utils import timezone
 
 from apps.core.fields import URLField
 from apps.core.models import SluggedModel
+
+
+class PartnerQuerySet(models.QuerySet):
+    def current(self, today=None):
+        today = today or timezone.localdate()
+        return self.filter(is_active=True).filter(
+            models.Q(starts_on__isnull=True) | models.Q(starts_on__lte=today),
+            models.Q(ends_on__isnull=True) | models.Q(ends_on__gte=today),
+        )
 
 
 class Partner(SluggedModel):
@@ -21,6 +31,8 @@ class Partner(SluggedModel):
     starts_on = models.DateField("début du partenariat", null=True, blank=True)
     ends_on = models.DateField("fin du partenariat", null=True, blank=True)
     is_active = models.BooleanField("actif", default=True)
+
+    objects = PartnerQuerySet.as_manager()
 
     class Meta:
         verbose_name = "partenaire"

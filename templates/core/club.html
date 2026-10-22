@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+  <header class="mb-5">
+    <h1 class="display-5 fw-bold">{{ club.name }}</h1>
+    {% if club.slogan %}<p class="lead text-accent-readable fw-semibold">{{ club.slogan }}</p>{% endif %}
+    {% if club.about_short %}<p class="lead">{{ club.about_short }}</p>{% endif %}
+  </header>
+
+  <dl class="row g-3 text-center mb-5 key-figures">
+    {% if club.founded_year %}<div class="col-6 col-md-3"><dt class="small text-uppercase">Fondation</dt><dd class="h2 fw-bold mb-0">{{ club.founded_year }}</dd></div>{% endif %}
+    <div class="col-6 col-md-3"><dt class="small text-uppercase">Titres</dt><dd class="h2 fw-bold mb-0">{{ title_count }}</dd></div>
+    {% if club.home_stadium %}<div class="col-12 col-md-6"><dt class="small text-uppercase">Stade</dt><dd class="h4 fw-bold mb-0">{{ club.home_stadium.name }}</dd></div>{% endif %}
+  </dl>
+
+  <div class="row g-4 mb-5">
+    {% for page in pages %}
+      <div class="col-md-6 col-lg-4">
+        <a class="card h-100 text-decoration-none card-link-club" href="{{ page.get_absolute_url }}">
+          {% if page.cover %}<img src="{{ page.cover.url }}" class="card-img-top article-cover" alt="" loading="lazy">{% endif %}
+          <div class="card-body">
+            <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ page.get_section_display }}</p>
+            <h2 class="h5 card-title mb-0">{{ page.title }}</h2>
+          </div>
+        </a>
+      </div>
+    {% endfor %}
+    <div class="col-md-6 col-lg-4">
+      <a class="card h-100 text-decoration-none card-link-club" href="{% url 'core:trophies' %}">
+        <div class="card-body"><i class="bi bi-trophy fs-2 text-accent-readable" aria-hidden="true"></i><h2 class="h5 card-title mt-2 mb-0">Palmarès</h2></div>
+      </a>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <a class="card h-100 text-decoration-none card-link-club" href="{% url 'core:presidents' %}">
+        <div class="card-body"><i class="bi bi-person-badge fs-2 text-accent-readable" aria-hidden="true"></i><h2 class="h5 card-title mt-2 mb-0">Présidents</h2></div>
+      </a>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <a class="card h-100 text-decoration-none card-link-club" href="{% url 'core:organisation' %}">
+        <div class="card-body"><i class="bi bi-diagram-3 fs-2 text-accent-readable" aria-hidden="true"></i><h2 class="h5 card-title mt-2 mb-0">Organigramme</h2></div>
+      </a>
+    </div>
+    <div class="col-md-6 col-lg-4">
+      <a class="card h-100 text-decoration-none card-link-club" href="{% url 'core:facilities' %}">
+        <div class="card-body"><i class="bi bi-building fs-2 text-accent-readable" aria-hidden="true"></i><h2 class="h5 card-title mt-2 mb-0">Infrastructures</h2></div>
+      </a>
+    </div>
+  </div>
+
+  {% if values %}
+    <section aria-labelledby="titre-valeurs">
+      <h2 id="titre-valeurs" class="h3 mb-4">Nos valeurs</h2>
+      <div class="row g-4">
+        {% for value in values %}
+          <div class="col-md-6 col-lg-3">
+            {% if value.icon %}<i class="bi bi-{{ value.icon }} fs-2 text-accent-readable" aria-hidden="true"></i>{% endif %}
+            <h3 class="h5 mt-2">{{ value.title }}</h3>
+            {% if value.description %}<p class="mb-0">{{ value.description }}</p>{% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock content %}

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock robots %}
 {% block title %}Mon compte — {{ club.name }}{% endblock title %}
 {% block content %}
   <div class="row justify-content-center">

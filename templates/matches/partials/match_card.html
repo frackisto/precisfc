@@ -1,0 +1,32 @@
+{# Carte de match : variables « match » et « heading » (titre de la carte). #}
+<div class="card h-100 match-card">
+  <div class="card-body">
+    <p class="text-uppercase small fw-bold text-accent-readable mb-1">{{ heading }}</p>
+    <p class="small text-body-secondary mb-3">
+      {{ match.competition_season.competition.name }}{% if match.matchday %} · Journée {{ match.matchday }}{% elif match.round_label %} · {{ match.round_label }}{% endif %}
+    </p>
+    <div class="d-flex align-items-center justify-content-between gap-2 text-center">
+      <div class="flex-fill">
+        {% if match.home_club.logo %}<img src="{{ match.home_club.logo.url }}" alt="" width="48" height="48" class="club-logo mb-1" loading="lazy">{% endif %}
+        <p class="fw-semibold mb-0">{{ match.home_club.short_name|default:match.home_club.name }}</p>
+      </div>
+      <div class="px-2">
+        {% if match.status == "FINISHED" %}
+          <p class="display-6 fw-bold mb-0">{{ match.home_score }} – {{ match.away_score }}</p>
+          {% if match.home_penalties is not None %}<p class="small mb-0">t.a.b. {{ match.home_penalties }} – {{ match.away_penalties }}</p>{% endif %}
+        {% else %}
+          <p class="h4 fw-bold mb-0">{{ match.kickoff_at|date:"H:i" }}</p>
+          {% if match.status == "POSTPONED" %}<span class="badge text-bg-warning">Reporté</span>{% endif %}
+        {% endif %}
+      </div>
+      <div class="flex-fill">
+        {% if match.away_club.logo %}<img src="{{ match.away_club.logo.url }}" alt="" width="48" height="48" class="club-logo mb-1" loading="lazy">{% endif %}
+        <p class="fw-semibold mb-0">{{ match.away_club.short_name|default:match.away_club.name }}</p>
+      </div>
+    </div>
+    <p class="small text-center text-body-secondary mt-3 mb-0">
+      <i class="bi bi-calendar3 me-1" aria-hidden="true"></i>{{ match.kickoff_at|date:"l j F Y" }}
+      {% if match.venue %}· {{ match.venue.name }}{% elif match.venue_name %}· {{ match.venue_name }}{% endif %}
+    </p>
+  </div>
+</div>

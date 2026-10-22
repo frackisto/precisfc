@@ -1,14 +1,13 @@
 {% comment %}
-Fil d'Ariane. Utilisation :
-  {% block breadcrumbs %}{% include "partials/breadcrumbs.html" with crumbs=crumbs %}{% endblock %}
-où ``crumbs`` est une liste de (libellé, url) ; le dernier élément est la page courante.
+Fil d'Ariane, affiché quand la vue fournit ``crumbs`` : liste de (libellé, url), la
+dernière entrée étant la page courante (url ignorée). L'accueil est ajouté d'office.
 {% endcomment %}
 {% if crumbs %}
   <nav aria-label="Fil d'Ariane" class="container pt-3">
     <ol class="breadcrumb mb-0">
       <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
       {% for label, url in crumbs %}
-        {% if forloop.last %}
+        {% if forloop.last or not url %}
           <li class="breadcrumb-item active" aria-current="page">{{ label }}</li>
         {% else %}
           <li class="breadcrumb-item"><a href="{{ url }}">{{ label }}</a></li>
