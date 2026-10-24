@@ -5,6 +5,9 @@ from django.urls import reverse
 
 from apps.competitions.models import CompetitionSeason
 from apps.matches.models import Match
+from apps.media_library.models import Album, Video
+from apps.media_library.views import published as published_media
+from apps.news.models import Article
 from apps.teams.models import Player, Team
 
 from . import selectors
@@ -24,6 +27,8 @@ class StaticPagesSitemap(Sitemap):
             ("teams:list", 0.8),
             ("matches:list", 0.9),
             ("competitions:list", 0.8),
+            ("news:list", 0.9),
+            ("media_library:index", 0.7),
         ]
 
     def location(self, item):
@@ -98,6 +103,33 @@ class EditionSitemap(Sitemap):
         return CompetitionSeason.objects.select_related("competition", "season").order_by("pk")
 
 
+class ArticleSitemap(Sitemap):
+    changefreq = "weekly"
+    priority = 0.7
+
+    def items(self):
+        return Article.objects.published().order_by("pk")
+
+    def lastmod(self, article):
+        return article.updated_at
+
+
+class AlbumSitemap(Sitemap):
+    changefreq = "monthly"
+    priority = 0.5
+
+    def items(self):
+        return published_media(Album.objects).order_by("pk")
+
+    def lastmod(self, album):
+        return album.updated_at
+
+
+class VideoSitemap(AlbumSitemap):
+    def items(self):
+        return published_media(Video.objects).order_by("pk")
+
+
 SITEMAPS = {
     "pages": StaticPagesSitemap,
     "club-pages": PageSitemap,
@@ -106,4 +138,7 @@ SITEMAPS = {
     "players": PlayerSitemap,
     "matches": MatchSitemap,
     "competitions": EditionSitemap,
+    "news": ArticleSitemap,
+    "albums": AlbumSitemap,
+    "videos": VideoSitemap,
 }

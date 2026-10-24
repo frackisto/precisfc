@@ -3,6 +3,7 @@ from django.db import models, transaction
 from django.urls import reverse
 from django_countries.fields import CountryField
 
+from apps.core.fields import ImageField
 from apps.core.models import SluggedModel, TimeStampedModel
 
 
@@ -44,7 +45,7 @@ class Club(SluggedModel):
 
     name = models.CharField("nom", max_length=150)
     short_name = models.CharField("nom court", max_length=30, blank=True)
-    logo = models.ImageField("logo", upload_to="clubs/", blank=True)
+    logo = ImageField("logo", upload_to="clubs/", blank=True)
     city = models.CharField("ville", max_length=100, blank=True)
     country = CountryField("pays", default="CI")
     is_own_club = models.BooleanField("notre club", default=False)
@@ -99,7 +100,7 @@ class Competition(SluggedModel):
 
     name = models.CharField("nom", max_length=150)
     kind = models.CharField("type", max_length=15, choices=Kind.choices)
-    logo = models.ImageField("logo", upload_to="competitions/", blank=True)
+    logo = ImageField("logo", upload_to="competitions/", blank=True)
     country = CountryField("pays", blank=True)
     points_win = models.PositiveSmallIntegerField("points pour une victoire", default=3)
     points_draw = models.PositiveSmallIntegerField("points pour un nul", default=1)

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1 class="display-6 fw-bold mb-4">Médias</h1>
+
+  <nav aria-label="Filtrer par type" class="mb-4">
+    <ul class="nav nav-pills flex-wrap gap-1">
+      <li class="nav-item"><a class="nav-link{% if not current_kind %} active{% endif %}" href="{% url 'media_library:index' %}"{% if not current_kind %} aria-current="page"{% endif %}>Tout</a></li>
+      {% for value, label in kinds %}
+        <li class="nav-item"><a class="nav-link{% if current_kind == value %} active{% endif %}" href="?type={{ value }}"{% if current_kind == value %} aria-current="page"{% endif %}>{{ label }}</a></li>
+      {% endfor %}
+    </ul>
+  </nav>
+
+  {% if videos %}
+    <section class="mb-5" aria-labelledby="titre-videos">
+      <h2 id="titre-videos" class="h4 mb-3">Vidéos</h2>
+      <div class="row g-4">
+        {% for video in videos %}
+          <div class="col-sm-6 col-lg-4">
+            <article class="card h-100 card-link-club">
+              {% if video.thumbnail %}<img src="{{ video.thumbnail.url }}" class="card-img-top article-cover" alt="" loading="lazy">{% else %}<div class="video-placeholder card-img-top d-flex align-items-center justify-content-center"><i class="bi bi-play-circle display-4" aria-hidden="true"></i></div>{% endif %}
+              <div class="card-body">
+                <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ video.get_kind_display }}</p>
+                <h3 class="h6 mb-0"><a class="stretched-link text-reset text-decoration-none" href="{{ video.get_absolute_url }}">{{ video.title }}</a></h3>
+              </div>
+            </article>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section aria-labelledby="titre-albums">
+    <h2 id="titre-albums" class="h4 mb-3">Albums photo</h2>
+    {% if albums.object_list %}
+      <div class="row g-4">
+        {% for album in albums.object_list %}
+          <div class="col-sm-6 col-lg-4">
+            <article class="card h-100 card-link-club">
+              {% if album.cover %}<img src="{{ album.cover_thumb.url }}" class="card-img-top article-cover" alt="" width="640" height="480" loading="lazy">{% endif %}
+              <div class="card-body">
+                <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ album.get_kind_display }}</p>
+                <h3 class="h6 mb-1"><a class="stretched-link text-reset text-decoration-none" href="{{ album.get_absolute_url }}">{{ album.title }}</a></h3>
+                <p class="small text-body-secondary mb-0">{{ album.photo_count }} photo{{ album.photo_count|pluralize }}{% if album.event_date %} · {{ album.event_date|date:"j F Y" }}{% endif %}</p>
+              </div>
+            </article>
+          </div>
+        {% endfor %}
+      </div>
+      {% include "partials/pagination.html" with page=albums query_string="" %}
+    {% else %}
+      <p class="lead">Aucun album pour le moment.</p>
+    {% endif %}
+  </section>
+{% endblock content %}

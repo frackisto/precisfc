@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load content %}
+{% block content %}
+  {% if is_preview %}
+    <div class="alert alert-warning" role="status">
+      <strong>Aperçu</strong> — cet article est « {{ article.get_status_display|lower }} » : il n’est pas visible du public.
+    </div>
+  {% endif %}
+  <article class="mx-auto page-article">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">
+      {% if article.category %}<a class="text-reset" href="{% url 'news:list' %}?categorie={{ article.category.slug }}">{{ article.category.name }}</a>{% else %}{{ article.get_kind_display }}{% endif %}
+    </p>
+    <h1 class="display-6 fw-bold mb-3">{{ article.title }}</h1>
+    <p class="text-body-secondary">
+      {% if article.publish_at %}<time datetime="{{ article.publish_at|date:'c' }}">{{ article.publish_at|date:"j F Y à H:i" }}</time>{% endif %}
+      {% if article.author %} · {{ article.author }}{% endif %}
+    </p>
+    {% if article.excerpt %}<p class="lead">{{ article.excerpt }}</p>{% endif %}
+    {% if article.cover_image %}
+      <figure class="mb-4">
+        <img src="{{ article.cover_wide.url }}" class="img-fluid rounded" alt="{{ article.cover_alt }}">
+      </figure>
+    {% endif %}
+    <div class="article-body">{{ article.body|rich_text }}</div>
+
+    {% if article.related_match or players %}
+      <aside class="border-top pt-3 mt-4 small">
+        {% if article.related_match %}<p class="mb-1">Match : <a href="{{ article.related_match.get_absolute_url }}">{{ article.related_match.home_club.name }} – {{ article.related_match.away_club.name }}</a></p>{% endif %}
+        {% if players %}<p class="mb-0">Joueurs : {% for player in players %}<a href="{{ player.get_absolute_url }}">{{ player.full_name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+      </aside>
+    {% endif %}
+    {% with tags=article.tags.all %}
+      {% if tags %}
+        <ul class="list-inline mt-3">
+          {% for tag in tags %}<li class="list-inline-item"><a class="badge rounded-pill text-bg-light text-decoration-none" href="{% url 'news:list' %}?motcle={{ tag.slug }}">#{{ tag.name }}</a></li>{% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% if article.gallery and article.gallery.is_published %}
+      <p class="mt-3"><a class="btn btn-outline-primary" href="{{ article.gallery.get_absolute_url }}"><i class="bi bi-images me-1" aria-hidden="true"></i>Voir la galerie photo</a></p>
+    {% endif %}
+
+    {% if not is_preview %}
+      {# Liens de partage simples : aucun script ni traceur de réseau social. #}
+      <div class="share-links d-flex flex-wrap align-items-center gap-2 mt-4" aria-label="Partager l’article">
+        <span class="small fw-semibold">Partager :</span>
+        <a class="btn btn-sm btn-outline-secondary" rel="noopener" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u={{ share_url|urlencode:'' }}"><i class="bi bi-facebook" aria-hidden="true"></i> Facebook</a>
+        <a class="btn btn-sm btn-outline-secondary" rel="noopener" target="_blank" href="https://wa.me/?text={{ article.title|urlencode:'' }}%20{{ share_url|urlencode:'' }}"><i class="bi bi-whatsapp" aria-hidden="true"></i> WhatsApp</a>
+        <a class="btn btn-sm btn-outline-secondary" rel="noopener" target="_blank" href="https://x.com/intent/post?url={{ share_url|urlencode:'' }}&amp;text={{ article.title|urlencode:'' }}"><i class="bi bi-twitter-x" aria-hidden="true"></i> X</a>
+        <a class="btn btn-sm btn-outline-secondary" rel="noopener" target="_blank" href="https://www.linkedin.com/sharing/share-offsite/?url={{ share_url|urlencode:'' }}"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a>
+      </div>
+    {% endif %}
+  </article>
+
+  {% if related %}
+    <section class="mt-5" aria-labelledby="titre-lies">
+      <h2 id="titre-lies" class="h4 mb-3">À lire aussi</h2>
+      <div class="row g-4">
+        {% for article in related %}<div class="col-md-4">{% include "news/partials/article_card.html" %}</div>{% endfor %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock content %}

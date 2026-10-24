@@ -3,6 +3,7 @@ from django.db import models, transaction
 from django_countries.fields import CountryField
 from phonenumber_field.modelfields import PhoneNumberField
 
+from apps.core.fields import ImageField
 from apps.core.models import TimeStampedModel
 
 from .managers import UserManager
@@ -41,7 +42,7 @@ class Profile(TimeStampedModel):
         User, verbose_name="utilisateur", on_delete=models.CASCADE, related_name="profile"
     )
     phone = PhoneNumberField("téléphone", blank=True)
-    avatar = models.ImageField("photo de profil", upload_to="avatars/", blank=True)
+    avatar = ImageField("photo de profil", upload_to="avatars/", blank=True)
     city = models.CharField("ville", max_length=100, blank=True)
     country = CountryField("pays", default="CI", blank=True)
     birth_date = models.DateField("date de naissance", null=True, blank=True)

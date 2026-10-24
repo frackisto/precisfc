@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django_countries.fields import CountryField
 
+from apps.core.fields import ImageField
 from apps.core.models import SluggedModel, TimeStampedModel
 from apps.core.utils import age_on, years_ago
 
@@ -31,7 +32,7 @@ class Team(SluggedModel):
     category = models.CharField("catégorie", max_length=10, choices=Category.choices)
     gender = models.CharField("genre", max_length=10, choices=Gender.choices, default=Gender.MALE)
     description = models.TextField("présentation", blank=True)
-    image = models.ImageField("photo d'équipe", upload_to="teams/", blank=True)
+    image = ImageField("photo d'équipe", upload_to="teams/", blank=True)
     season = models.ForeignKey(
         "competitions.Season",
         verbose_name="saison",
@@ -98,7 +99,7 @@ class Player(SluggedModel):
     )
     first_name = models.CharField("prénom", max_length=100)
     last_name = models.CharField("nom", max_length=100)
-    photo = models.ImageField("photo", upload_to="players/", blank=True)
+    photo = ImageField("photo", upload_to="players/", blank=True)
     shirt_number = models.PositiveSmallIntegerField(
         "numéro", null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(99)]
     )
@@ -182,7 +183,7 @@ class PlayerPhoto(TimeStampedModel):
     player = models.ForeignKey(
         Player, verbose_name="joueur", on_delete=models.CASCADE, related_name="photos"
     )
-    image = models.ImageField("image", upload_to="players/photos/")
+    image = ImageField("image", upload_to="players/photos/")
     caption = models.CharField("légende", max_length=200, blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
 
@@ -220,7 +221,7 @@ class Staff(SluggedModel):
     )
     first_name = models.CharField("prénom", max_length=100)
     last_name = models.CharField("nom", max_length=100)
-    photo = models.ImageField("photo", upload_to="staff/", blank=True)
+    photo = ImageField("photo", upload_to="staff/", blank=True)
     role = models.CharField("fonction", max_length=20, choices=Role.choices)
     bio = models.TextField("biographie", blank=True)
     nationality = CountryField("nationalité", blank=True)

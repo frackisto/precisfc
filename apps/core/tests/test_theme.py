@@ -321,3 +321,13 @@ def test_profile_page_uses_bootstrap_forms(client):
 
     assert "form-control" in page
     assert "Mon compte" in page
+
+
+def test_card_images_keep_their_proportions_whatever_the_card_width():
+    # Sans « height: auto », l'attribut height de <img> impose une hauteur fixe et l'image
+    # est rognée sur les côtés dans une carte étroite (titre coupé, visages coupés…).
+    css = Path(finders.find("css/site.css")).read_text(encoding="utf-8")
+
+    for selector in (".article-cover {", ".player-card-photo {", ".photo-grid img {"):
+        rule = css.split(selector, 1)[1].split("}", 1)[0]
+        assert "height: auto" in rule, selector

@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-from apps.core.fields import URLField
+from apps.core.fields import ImageField, URLField
 from apps.core.models import SluggedModel
 
 
@@ -23,7 +23,7 @@ class Partner(SluggedModel):
         INSTITUTIONAL = "INSTITUTIONAL", "Partenaire institutionnel"
 
     name = models.CharField("nom", max_length=150)
-    logo = models.ImageField("logo", upload_to="partners/")
+    logo = ImageField("logo", upload_to="partners/")
     tier = models.CharField("niveau", max_length=15, choices=Tier.choices)
     description = models.TextField("description", blank=True)
     url = URLField("site web", blank=True)

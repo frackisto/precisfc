@@ -15,6 +15,8 @@ urlpatterns = [
     path("", include("apps.teams.urls")),
     path("", include("apps.matches.urls")),
     path("", include("apps.competitions.urls")),
+    path("", include("apps.news.urls")),
+    path("", include("apps.media_library.urls")),
 ]
 
 if settings.DEBUG:

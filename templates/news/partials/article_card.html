@@ -1,0 +1,12 @@
+{# Carte d'article : variable « article ». #}
+<article class="card h-100 card-link-club">
+  {% if article.cover_image %}<img src="{{ article.cover_card.url }}" class="card-img-top article-cover" alt="{{ article.cover_alt }}" width="800" height="450" loading="lazy">{% endif %}
+  <div class="card-body">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ article.category.name|default:article.get_kind_display }}</p>
+    <h3 class="h5 card-title"><a class="stretched-link text-reset text-decoration-none" href="{{ article.get_absolute_url }}">{{ article.title }}</a></h3>
+    {% if article.excerpt %}<p class="card-text">{{ article.excerpt }}</p>{% endif %}
+  </div>
+  <div class="card-footer bg-transparent border-0 small text-body-secondary">
+    <time datetime="{{ article.publish_at|date:'c' }}">{{ article.publish_at|date:"j F Y" }}</time>
+  </div>
+</article>

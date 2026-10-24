@@ -83,12 +83,32 @@ def _font(size):
     return ImageFont.load_default(size=size), False
 
 
+def _printable(text, has_accents):
+    """Texte tel quel, ou sans accents si la police n'en a pas (plutôt que des carrés)."""
+    if has_accents:
+        return text
+    text = unicodedata.normalize("NFKD", text.replace("×", "x"))
+    return text.encode("ascii", "ignore").decode()
+
+
 def _text(draw, position, text, size, **kwargs):
     font, has_accents = _font(size)
-    if not has_accents:  # repli : texte sans accents plutôt que des carrés
-        text = unicodedata.normalize("NFKD", text.replace("×", "x"))
-        text = text.encode("ascii", "ignore").decode()
-    draw.text(position, text, font=font, **kwargs)
+    draw.text(position, _printable(text, has_accents), font=font, **kwargs)
+
+
+def wrap_text(draw, text, font, max_width):
+    """Découpe ``text`` en lignes qui tiennent dans ``max_width`` pixels (mot par mot)."""
+    lines, current = [], ""
+    for word in text.split():
+        candidate = f"{current} {word}".strip()
+        if current and draw.textlength(candidate, font=font) > max_width:
+            lines.append(current)
+            current = word
+        else:
+            current = candidate
+    if current:
+        lines.append(current)
+    return lines
 
 
 def _dashed_rectangle(draw, box, color, width=4, dash=24):

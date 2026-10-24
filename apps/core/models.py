@@ -3,9 +3,11 @@ from django.core.validators import MaxValueValidator, MinValueValidator, RegexVa
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django_prose_editor.fields import ProseEditorField
 
 from .colors import theme_palette
-from .fields import URLField
+from .fields import ImageField, URLField
+from .html import EDITOR_EXTENSIONS, sanitize_html
 from .utils import unique_slug
 
 hex_color_validator = RegexValidator(
@@ -48,7 +50,7 @@ class SEOFields(models.Model):
 
     meta_title = models.CharField("titre SEO", max_length=70, blank=True)
     meta_description = models.CharField("description SEO", max_length=160, blank=True)
-    og_image = models.ImageField("image de partage", upload_to="seo/", blank=True)
+    og_image = ImageField("image de partage", upload_to="seo/", blank=True)
 
     class Meta:
         abstract = True
@@ -121,7 +123,7 @@ class Facility(SluggedModel):
     address = models.CharField("adresse", max_length=255, blank=True)
     lat = models.DecimalField("latitude", max_digits=9, decimal_places=6, null=True, blank=True)
     lng = models.DecimalField("longitude", max_digits=9, decimal_places=6, null=True, blank=True)
-    cover = models.ImageField("image principale", upload_to="facilities/", blank=True)
+    cover = ImageField("image principale", upload_to="facilities/", blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
     is_published = models.BooleanField("publiée", default=True)
 
@@ -141,7 +143,7 @@ class FacilityPhoto(TimeStampedModel):
     facility = models.ForeignKey(
         Facility, verbose_name="infrastructure", on_delete=models.CASCADE, related_name="photos"
     )
-    image = models.ImageField("image", upload_to="facilities/photos/")
+    image = ImageField("image", upload_to="facilities/photos/")
     caption = models.CharField("légende", max_length=200, blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
 
@@ -163,9 +165,9 @@ class ClubSettings(SingletonModel):
     name = models.CharField("nom du club", max_length=100, default="Precis FC")
     short_name = models.CharField("nom court", max_length=30, default="Precis FC")
     slogan = models.CharField("slogan", max_length=200, blank=True)
-    logo = models.ImageField("logo", upload_to="club/", blank=True)
-    logo_dark = models.ImageField("logo pour fond sombre", upload_to="club/", blank=True)
-    favicon = models.ImageField("favicon", upload_to="club/", blank=True)
+    logo = ImageField("logo", upload_to="club/", blank=True)
+    logo_dark = ImageField("logo pour fond sombre", upload_to="club/", blank=True)
+    favicon = ImageField("favicon", upload_to="club/", blank=True)
     color_primary = models.CharField(
         "couleur principale", max_length=7, default="#0B1F3A", validators=[hex_color_validator]
     )
@@ -208,9 +210,7 @@ class ClubSettings(SingletonModel):
     default_meta_description = models.CharField(
         "description SEO par défaut", max_length=160, blank=True
     )
-    default_og_image = models.ImageField(
-        "image de partage par défaut", upload_to="seo/", blank=True
-    )
+    default_og_image = ImageField("image de partage par défaut", upload_to="seo/", blank=True)
     about_short = models.TextField("présentation courte", blank=True)
 
     class Meta:
@@ -264,7 +264,7 @@ class HeroSlide(TimeStampedModel):
 
     title = models.CharField("titre", max_length=150)
     subtitle = models.CharField("sous-titre", max_length=255, blank=True)
-    image = models.ImageField("image", upload_to="hero/")
+    image = ImageField("image", upload_to="hero/")
     cta_label = models.CharField("texte du bouton", max_length=40, blank=True)
     cta_url = models.CharField("lien du bouton", max_length=255, blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
@@ -308,9 +308,8 @@ class Page(SluggedModel, SEOFields):
 
     section = models.CharField("rubrique", max_length=20, choices=Section.choices)
     title = models.CharField("titre", max_length=200)
-    # HTML assaini à l'enregistrement (éditeur riche ajouté à l'étape 9).
-    body = models.TextField("contenu", blank=True)
-    cover = models.ImageField("image de couverture", upload_to="pages/", blank=True)
+    body = ProseEditorField("contenu", extensions=EDITOR_EXTENSIONS, sanitize=True, blank=True)
+    cover = ImageField("image de couverture", upload_to="pages/", blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
     is_published = models.BooleanField("publiée", default=False)
 
@@ -321,6 +320,11 @@ class Page(SluggedModel, SEOFields):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        # Assaini à chaque enregistrement, même sans passer par un formulaire.
+        self.body = sanitize_html(self.body)
+        super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("core:page_detail", args=[self.slug])
@@ -352,7 +356,7 @@ class Trophy(TimeStampedModel):
     category = models.CharField(
         "catégorie", max_length=50, blank=True, help_text="Ex. équipe première, féminines, U17."
     )
-    image = models.ImageField("image", upload_to="trophies/", blank=True)
+    image = ImageField("image", upload_to="trophies/", blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
 
     class Meta:
@@ -385,7 +389,7 @@ class TrophyWin(TimeStampedModel):
 
 class President(TimeStampedModel):
     full_name = models.CharField("nom complet", max_length=150)
-    photo = models.ImageField("photo", upload_to="presidents/", blank=True)
+    photo = ImageField("photo", upload_to="presidents/", blank=True)
     start_year = models.PositiveSmallIntegerField("début du mandat")
     end_year = models.PositiveSmallIntegerField("fin du mandat", null=True, blank=True)
     bio = models.TextField("biographie", blank=True)
@@ -421,7 +425,7 @@ class OrgMember(TimeStampedModel):
         ACADEMY = "ACADEMY", "Centre de formation"
 
     full_name = models.CharField("nom complet", max_length=150)
-    photo = models.ImageField("photo", upload_to="organisation/", blank=True)
+    photo = ImageField("photo", upload_to="organisation/", blank=True)
     role_title = models.CharField("fonction", max_length=150)
     department = models.CharField("département", max_length=20, choices=Department.choices)
     bio = models.TextField("biographie", blank=True)

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+  <article class="mx-auto page-article">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ video.get_kind_display }}</p>
+    <h1 class="display-6 fw-bold mb-4">{{ video.title }}</h1>
+    {# Lecteur intégré : seul l'identifiant validé de la vidéo est inséré dans l'adresse. #}
+    <div class="ratio ratio-16x9 mb-4">
+      <iframe src="{{ video.embed_url }}" title="{{ video.title }}" loading="lazy"
+              allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    {% if video.description %}<div>{{ video.description|linebreaks }}</div>{% endif %}
+    {% if video.match %}<p><a href="{{ video.match.get_absolute_url }}">Voir le match</a></p>{% endif %}
+  </article>
+{% endblock content %}

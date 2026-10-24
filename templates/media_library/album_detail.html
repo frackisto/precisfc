@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+  <header class="mb-4">
+    <p class="small text-uppercase fw-bold text-accent-readable mb-1">{{ album.get_kind_display }}{% if album.event_date %} · {{ album.event_date|date:"j F Y" }}{% endif %}</p>
+    <h1 class="display-6 fw-bold">{{ album.title }}</h1>
+    {% if album.match %}<a href="{{ album.match.get_absolute_url }}">Voir le match</a>{% endif %}
+  </header>
+
+  {% if photos %}
+    {# Sans JavaScript : chaque vignette ouvre la photo en grand. Avec : visionneuse. #}
+    <ul class="list-unstyled row g-2 photo-grid" data-lightbox>
+      {% for photo in photos %}
+        <li class="col-6 col-md-4 col-lg-3">
+          <a href="{{ photo.large.url }}" class="d-block" data-lightbox-item data-caption="{{ photo.caption }}{% if photo.credit %} — © {{ photo.credit }}{% endif %}">
+            <img src="{{ photo.thumb.url }}" class="img-fluid rounded" width="400" height="300" alt="{{ photo.alt_text|default:photo.caption|default:album.title }}" loading="lazy">
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="modal fade" id="visionneuse" tabindex="-1" aria-label="Visionneuse de photos" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark text-white">
+          <div class="modal-header border-0">
+            <p class="modal-title small mb-0" data-lightbox-caption></p>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          </div>
+          <div class="modal-body text-center p-0">
+            <img src="" alt="" class="img-fluid lightbox-image" data-lightbox-image>
+          </div>
+          <div class="modal-footer border-0 justify-content-between">
+            <button type="button" class="btn btn-outline-light" data-lightbox-prev><i class="bi bi-chevron-left" aria-hidden="true"></i> Précédente</button>
+            <span class="small" data-lightbox-counter aria-live="polite"></span>
+            <button type="button" class="btn btn-outline-light" data-lightbox-next>Suivante <i class="bi bi-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <p class="lead">Les photos seront bientôt ajoutées.</p>
+  {% endif %}
+{% endblock content %}
+
+{% block extra_js %}<script src="{% static 'js/lightbox.js' %}"></script>{% endblock extra_js %}

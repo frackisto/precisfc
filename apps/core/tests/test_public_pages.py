@@ -164,19 +164,32 @@ def test_menu_now_shows_the_club_section(client):
     assert 'href="/club/"' in html(client.get(reverse("core:home")))
 
 
-def test_published_page_is_displayed_with_escaped_text(client):
+def test_published_page_body_is_sanitized_rich_text(client):
     Page.objects.create(
         section="HISTORY",
         title="Histoire",
-        body="Fondé en 1985.\n\n<script>alert('x')</script>",
+        body="<h2>Les débuts</h2><p>Fondé en <strong>1985</strong>.</p><script>alert('x')</script>",
         is_published=True,
     )
 
     page = html(client.get(reverse("core:page_detail", args=["histoire"])))
 
-    assert "Fondé en 1985." in page
-    assert "<script>alert" not in page
-    assert "&lt;script&gt;" in page
+    assert "<h2>Les débuts</h2>" in page and "<strong>1985</strong>" in page
+    assert "alert" not in page
+
+
+TWO_PARAGRAPHS = """Premier paragraphe.
+
+Second."""
+
+
+def test_legacy_plain_text_page_keeps_its_paragraphs(client):
+    page_obj = Page.objects.create(section="HISTORY", title="Ancienne", is_published=True)
+    Page.objects.filter(pk=page_obj.pk).update(body=TWO_PARAGRAPHS)
+
+    page = html(client.get(page_obj.get_absolute_url()))
+
+    assert "<p>Premier paragraphe.</p>" in page and "<p>Second.</p>" in page
 
 
 def test_unpublished_or_unknown_page_returns_404(client):

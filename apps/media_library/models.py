@@ -2,7 +2,10 @@ import re
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 
+from apps.core.fields import ImageField
+from apps.core.images import resized, thumbnail
 from apps.core.models import SluggedModel, TimeStampedModel
 
 
@@ -36,7 +39,8 @@ class Album(SluggedModel):
         blank=True,
         related_name="albums",
     )
-    cover = models.ImageField("couverture", upload_to="albums/covers/", blank=True)
+    cover = ImageField("couverture", upload_to="albums/covers/", blank=True)
+    cover_thumb = thumbnail("cover", 640, 480)
     event_date = models.DateField("date", null=True, blank=True)
     is_published = models.BooleanField("publié", default=False)
     published_at = models.DateTimeField("publié le", null=True, blank=True)
@@ -50,15 +54,17 @@ class Album(SluggedModel):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return reverse("media_library:album", args=[self.slug])
+
 
 class Photo(TimeStampedModel):
-    """Photo d'un album ; les déclinaisons WebP (vignette, moyenne, grande) sont
-    générées par django-imagekit à partir de ``image`` (étape 9)."""
+    """Photo d'un album ; les déclinaisons WebP sont générées par django-imagekit."""
 
     album = models.ForeignKey(
         Album, verbose_name="album", on_delete=models.CASCADE, related_name="photos"
     )
-    image = models.ImageField(
+    image = ImageField(
         "image", upload_to="albums/%Y/%m/", width_field="width", height_field="height"
     )
     caption = models.CharField("légende", max_length=255, blank=True)
@@ -72,6 +78,11 @@ class Photo(TimeStampedModel):
     order = models.PositiveSmallIntegerField("ordre", default=0)
     width = models.PositiveIntegerField("largeur", null=True, blank=True, editable=False)
     height = models.PositiveIntegerField("hauteur", null=True, blank=True, editable=False)
+
+    # Déclinaisons WebP (pas de colonne en base) : grille, visionneuse, plein écran.
+    thumb = thumbnail("image", 400, 300)
+    medium = resized("image", 1024)
+    large = resized("image", 1920)
 
     class Meta:
         verbose_name = "photo"
@@ -107,7 +118,7 @@ class Video(SluggedModel):
     kind = models.CharField("type", max_length=10, choices=MediaKind.choices)
     provider = models.CharField("plateforme", max_length=12, choices=Provider.choices)
     video_id = models.CharField("identifiant de la vidéo", max_length=20)
-    thumbnail = models.ImageField("vignette", upload_to="videos/", blank=True)
+    thumbnail = ImageField("vignette", upload_to="videos/", blank=True)
     description = models.TextField("description", blank=True)
     match = models.ForeignKey(
         "matches.Match",
@@ -153,6 +164,9 @@ class Video(SluggedModel):
                     "saisir uniquement le code de la vidéo, pas l'adresse complète."
                 }
             )
+
+    def get_absolute_url(self):
+        return reverse("media_library:video", args=[self.slug])
 
     @property
     def embed_url(self):

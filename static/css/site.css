@@ -69,7 +69,9 @@ button:focus-visible,
 }
 .hero-caption .lead { color: #FFFFFF; }
 
-.article-cover { aspect-ratio: 16 / 9; object-fit: cover; }
+/* height: auto : sinon l'attribut height de <img> fixe une hauteur en pixels, la proportion
+   est ignorée et l'image est rognée sur les côtés dans les cartes étroites. */
+.article-cover { aspect-ratio: 16 / 9; object-fit: cover; height: auto; }
 .club-logo, .trophy-image { object-fit: contain; }
 .player-thumb, .person-photo { object-fit: cover; }
 .partner-logos img { max-width: 10rem; object-fit: contain; }
@@ -87,10 +89,20 @@ button:focus-visible,
 .match-minute { min-width: 3rem; }
 .lineup-number { display: inline-block; min-width: 1.75rem; }
 .match-team { max-width: 12rem; }
-.player-card-photo { aspect-ratio: 1; object-fit: cover; }
+.player-card-photo { aspect-ratio: 1; object-fit: cover; height: auto; }
 .player-placeholder { aspect-ratio: 3 / 4; background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
 .card-yellow, .card-second_yellow { color: #E0A800; }
 .card-red { color: #C1121F; }
+/* Actualités et médias. */
+.article-body { font-size: 1.0625rem; line-height: 1.7; }
+.article-body h2 { font-size: 1.5rem; margin-top: 2rem; }
+.article-body h3 { font-size: 1.25rem; margin-top: 1.5rem; }
+.article-body blockquote { border-left: 4px solid var(--pfc-accent); padding-left: 1rem; font-style: italic; }
+.video-placeholder { aspect-ratio: 16 / 9; background: var(--bs-tertiary-bg); color: var(--bs-secondary-color); }
+.photo-grid img { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; height: auto; }
+.lightbox-image { max-height: 80vh; }
+.workflow-row { gap: .5rem; flex-wrap: wrap; align-items: center; }
+
 /* Forme : couleurs avec contraste suffisant pour le texte blanc ou noir. */
 .form-V { background-color: #146C43; color: #FFFFFF; }
 .form-N { background-color: #6C757D; color: #FFFFFF; }

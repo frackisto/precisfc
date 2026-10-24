@@ -42,6 +42,9 @@ THIRD_PARTY_APPS = [
     "axes",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_prose_editor",
+    "imagekit",
+    "auditlog",
 ]
 LOCAL_APPS = [
     "apps.core",
@@ -76,6 +79,8 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    # Historique des modifications : associe chaque changement à son auteur.
+    "auditlog.middleware.AuditlogMiddleware",
     # En dernier : bloque les requêtes des comptes ou adresses IP verrouillés.
     "axes.middleware.AxesMiddleware",
 ]

@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% comment %}Boutons du circuit de publication : l'article est enregistré, puis l'action est appliquée.{% endcomment %}
+{% block submit_buttons_bottom %}
+  {{ block.super }}
+  {% if original %}
+    <div class="submit-row workflow-row" aria-label="Circuit de publication">
+      <strong>Statut : {{ original.get_status_display }}</strong>
+      {% for value, label in workflow_actions %}
+        <button type="submit" name="_workflow" value="{{ value }}">{{ label }}</button>
+      {% endfor %}
+      <button type="submit" name="_workflow" value="renew_preview">Nouveau lien d’aperçu</button>
+    </div>
+  {% endif %}
+{% endblock submit_buttons_bottom %}

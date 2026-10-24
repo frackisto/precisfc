@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from apps.core.fields import ImageField
 from apps.core.models import SEOFields, SluggedModel, TimeStampedModel
 
 MONEY = {"max_digits": 12, "decimal_places": 2, "validators": [MinValueValidator(0)]}
@@ -17,7 +18,7 @@ class ProductCategory(SluggedModel):
         blank=True,
         related_name="children",
     )
-    image = models.ImageField("image", upload_to="shop/categories/", blank=True)
+    image = ImageField("image", upload_to="shop/categories/", blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
 
     class Meta:
@@ -74,7 +75,7 @@ class ProductImage(TimeStampedModel):
     product = models.ForeignKey(
         Product, verbose_name="produit", on_delete=models.CASCADE, related_name="images"
     )
-    image = models.ImageField("image", upload_to="shop/products/")
+    image = ImageField("image", upload_to="shop/products/")
     alt_text = models.CharField("texte alternatif", max_length=255, blank=True)
     order = models.PositiveSmallIntegerField("ordre", default=0)
     color = models.CharField(

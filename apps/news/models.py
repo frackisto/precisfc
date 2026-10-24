@@ -1,9 +1,15 @@
 import uuid
 
+from auditlog.registry import auditlog
 from django.conf import settings
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
+from django_prose_editor.fields import ProseEditorField
 
+from apps.core.fields import ImageField
+from apps.core.html import EDITOR_EXTENSIONS, sanitize_html
+from apps.core.images import resized, thumbnail
 from apps.core.models import SEOFields, SluggedModel
 
 
@@ -64,9 +70,10 @@ class Article(SluggedModel, SEOFields):
     kind = models.CharField("type", max_length=15, choices=Kind.choices, default=Kind.NEWS)
     title = models.CharField("titre", max_length=200)
     excerpt = models.CharField("chapeau", max_length=300, blank=True)
-    # HTML assaini à l'enregistrement (éditeur riche ajouté à l'étape 9).
-    body = models.TextField("contenu", blank=True)
-    cover_image = models.ImageField("image principale", upload_to="news/%Y/%m/", blank=True)
+    body = ProseEditorField("contenu", extensions=EDITOR_EXTENSIONS, sanitize=True, blank=True)
+    cover_image = ImageField("image principale", upload_to="news/%Y/%m/", blank=True)
+    cover_card = thumbnail("cover_image", 800, 450)
+    cover_wide = resized("cover_image", 1600, 900)
     cover_alt = models.CharField("texte alternatif de l'image", max_length=255, blank=True)
     gallery = models.ForeignKey(
         "media_library.Album",
@@ -141,3 +148,24 @@ class Article(SluggedModel, SEOFields):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        # Assaini à chaque enregistrement, même sans passer par un formulaire.
+        self.body = sanitize_html(self.body)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse("news:detail", args=[self.slug])
+
+    @property
+    def is_visible(self):
+        """Visible du public : publié, ou programmé dont l'heure est passée."""
+        return (
+            self.status in (self.Status.PUBLISHED, self.Status.SCHEDULED)
+            and self.publish_at is not None
+            and self.publish_at <= timezone.now()
+        )
+
+
+# Historique des modifications (qui a changé quoi, et quand), visible dans l'administration.
+auditlog.register(Article, exclude_fields=["preview_token", "updated_at"])

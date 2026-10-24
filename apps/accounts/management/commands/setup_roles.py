@@ -28,10 +28,12 @@ class Command(BaseCommand):
             group, created = Group.objects.get_or_create(name=role.name)
             permissions = resolve_permissions(role.all_permissions)
             group.permissions.set(permissions)
-            state = "créé" if created else "à jour"
-            self.stdout.write(f"{role.name} : {state} ({len(permissions)} permissions)")
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"{len(ROLES) + 1} rôles prêts ({SUPERADMIN_LABEL} = superutilisateur Django)."
+            if options["verbosity"]:
+                state = "créé" if created else "à jour"
+                self.stdout.write(f"{role.name} : {state} ({len(permissions)} permissions)")
+        if options["verbosity"]:
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"{len(ROLES) + 1} rôles prêts ({SUPERADMIN_LABEL} = superutilisateur Django)."
+                )
             )
-        )
