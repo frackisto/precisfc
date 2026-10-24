@@ -17,6 +17,8 @@ ALL = ("view", "add", "change", "delete")
 
 DASHBOARD = "core.view_dashboard"
 FINANCIAL_REPORTS = "core.view_financial_reports"
+# Tous les compteurs du tableau de bord (supporters, candidatures…), sans accès aux fiches.
+ALL_INDICATORS = "core.view_all_indicators"
 
 
 def perms(models: str, actions=ALL) -> frozenset[str]:
@@ -89,7 +91,7 @@ ROLES: dict[str, Role] = {
                 "ticketing.booking partners.partner notifications.newslettercampaign",
                 VIEW,
             )
-            | {FINANCIAL_REPORTS},
+            | {FINANCIAL_REPORTS, ALL_INDICATORS},
         ),
         Role(
             CLUB_ADMIN,

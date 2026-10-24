@@ -1,0 +1,33 @@
+/*
+ * Administration Django aux couleurs du club. Les variables --pfc-* viennent de
+ * /theme.css (Paramètres du club) ; leurs contrastes y sont déjà vérifiés.
+ * Seules les zones colorées changent (en-tête, fil d'Ariane, boutons) : elles restent
+ * lisibles en mode clair comme en mode sombre. Les liens gardent les couleurs de Django.
+ */
+html,
+html[data-theme="light"],
+html[data-theme="dark"] {
+  --header-bg: var(--pfc-primary);
+  --header-color: var(--pfc-primary-text);
+  --header-link-color: var(--pfc-primary-text);
+  --header-branding-color: var(--pfc-accent-on-primary);
+  --breadcrumbs-bg: var(--pfc-primary-hover);
+  --breadcrumbs-fg: var(--pfc-primary-text);
+  --breadcrumbs-link-fg: var(--pfc-primary-text);
+  --button-bg: var(--pfc-primary);
+  --button-fg: var(--pfc-primary-text);
+  --button-hover-bg: var(--pfc-primary-hover);
+  --default-button-bg: var(--pfc-primary-hover);
+  --default-button-hover-bg: var(--pfc-primary);
+}
+
+#site-name a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-brand-logo {
+  height: 32px;
+  width: auto;
+}

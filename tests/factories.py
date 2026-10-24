@@ -11,9 +11,10 @@ from apps.accounts.models import User
 from apps.competitions.models import Club, Competition, CompetitionSeason, Season
 from apps.matches.models import Match
 from apps.orders.models import Order, ShippingMethod
+from apps.payments.models import Payment
 from apps.shop.models import Product, ProductCategory, ProductVariant
 from apps.teams.models import Player, Team
-from apps.ticketing.models import Booking
+from apps.ticketing.models import Booking, Ticket, TicketCategory
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -160,3 +161,36 @@ class ApplicationFactory(factory.django.DjangoModelFactory):
     city = "Abidjan"
     consent_given = True
     consent_at = factory.LazyFunction(timezone.now)
+
+
+class TicketCategoryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TicketCategory
+
+    match = factory.SubFactory(MatchFactory)
+    name = factory.Sequence(lambda n: f"Tribune {n}")
+    price = Decimal("5000")
+    capacity = 100
+
+
+class TicketFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Ticket
+
+    category = factory.SubFactory(TicketCategoryFactory)
+    booking = factory.SubFactory(BookingFactory, match=factory.SelfAttribute("..category.match"))
+    holder_name = "Awa Traoré"
+
+
+class PaymentFactory(factory.django.DjangoModelFactory):
+    """Paiement confirmé d'une commande (par défaut) ; ``booking=…`` pour la billetterie."""
+
+    class Meta:
+        model = Payment
+
+    order = factory.SubFactory(OrderFactory)
+    provider = Payment.Provider.MANUAL
+    method = Payment.Method.CASH
+    amount = Decimal("17000")
+    status = Payment.Status.SUCCEEDED
+    confirmed_at = factory.LazyFunction(timezone.now)

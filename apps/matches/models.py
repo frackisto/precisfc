@@ -1,3 +1,4 @@
+from auditlog.registry import auditlog
 from django.conf import settings
 from django.core.validators import MaxValueValidator
 from django.db import models
@@ -358,3 +359,7 @@ class MatchTeamStat(TimeStampedModel):
 
     def __str__(self):
         return f"{self.match} — {self.get_side_display()}"
+
+
+# Historique des modifications des matchs (scores saisis, reports) avec leur auteur.
+auditlog.register(Match, exclude_fields=["updated_at"])

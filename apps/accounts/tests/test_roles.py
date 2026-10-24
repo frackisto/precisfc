@@ -53,7 +53,12 @@ def test_setup_roles_rejects_unknown_permissions(monkeypatch):
 # Pour chaque rôle : des droits qu'il doit avoir, et d'autres qu'il ne doit surtout pas avoir.
 MATRIX = {
     roles.DIRECTION: (
-        ["orders.view_order", "payments.view_payment", "core.view_financial_reports"],
+        [
+            "orders.view_order",
+            "payments.view_payment",
+            "core.view_financial_reports",
+            "core.view_all_indicators",
+        ],
         ["matches.change_match", "academy.view_application", "payments.confirm_manual_payment"],
     ),
     roles.CLUB_ADMIN: (
@@ -86,7 +91,12 @@ MATRIX = {
     ),
     roles.TREASURER: (
         ["payments.confirm_manual_payment", "core.view_financial_reports", "orders.view_order"],
-        ["payments.change_payment", "orders.change_order", "shop.change_product"],
+        [
+            "payments.change_payment",
+            "orders.change_order",
+            "shop.change_product",
+            "core.view_all_indicators",
+        ],
     ),
     roles.TICKETING_MANAGER: (
         ["ticketing.add_ticketcategory", "ticketing.scan_ticket", "ticketing.view_booking"],

@@ -1,0 +1,28 @@
+{% load money %}
+{% comment %}
+Chiffre d'affaires des 12 derniers mois : graphique, et les mêmes chiffres dans un
+tableau (lisible sans JavaScript et par les lecteurs d'écran).
+{% endcomment %}
+<figure class="mb-0">
+  <div class="chart-box"><canvas id="graphique-ca" data-chart="donnees-ca" data-chart-type="stacked-bar" role="img" aria-label="Chiffre d'affaires mensuel des 12 derniers mois, boutique et billetterie"></canvas></div>
+  {{ revenue_chart|json_script:"donnees-ca" }}
+  <details class="mt-2">
+    <summary class="small">Voir les chiffres mois par mois</summary>
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mt-2 mb-0">
+        <caption class="visually-hidden">Chiffre d'affaires confirmé par mois</caption>
+        <thead><tr><th scope="col">Mois</th><th scope="col" class="text-end">Boutique</th><th scope="col" class="text-end">Billetterie</th><th scope="col" class="text-end">Total</th></tr></thead>
+        <tbody>
+          {% for row in revenue_rows %}
+            <tr>
+              <th scope="row" class="fw-normal">{{ row.month|date:"F Y"|capfirst }}</th>
+              <td class="text-end">{{ row.shop|fcfa }}</td>
+              <td class="text-end">{{ row.ticketing|fcfa }}</td>
+              <td class="text-end fw-semibold">{{ row.total|fcfa }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </details>
+</figure>

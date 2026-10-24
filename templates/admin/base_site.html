@@ -1,0 +1,24 @@
+{% extends "admin/base.html" %}
+{% load static %}
+{% comment %}
+Administration aux couleurs et au nom du club (Paramètres du club), avec un lien vers
+le tableau de bord pour les rôles qui y ont accès.
+{% endcomment %}
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title }}{% endblock %}
+
+{% block extrastyle %}{{ block.super }}
+<link rel="stylesheet" href="{% url 'core:theme_css' %}?v={{ club.theme_version }}">
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% if club.favicon %}<link rel="icon" href="{{ club.favicon.url }}">{% endif %}
+{% endblock %}
+
+{% block branding %}
+<div id="site-name"><a href="{% url 'admin:index' %}">{% if club.logo %}<img src="{{ club.logo.url }}" alt="" width="32" height="32" class="admin-brand-logo">{% endif %}{{ site_header }}</a></div>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+{% endblock %}
+
+{% block userlinks %}{% if dashboard_url %}<a href="{{ dashboard_url }}">Tableau de bord</a> / {% endif %}{{ block.super }}{% endblock %}
+
+{% block nav-global %}{% endblock %}

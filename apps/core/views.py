@@ -155,6 +155,7 @@ def robots_txt(request):
     lines = [
         "User-agent: *",
         "Disallow: /compte/",
+        "Disallow: /gestion/",
         "Disallow: /theme/",
         "",
         f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",

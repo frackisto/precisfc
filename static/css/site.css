@@ -107,3 +107,18 @@ button:focus-visible,
 .form-V { background-color: #146C43; color: #FFFFFF; }
 .form-N { background-color: #6C757D; color: #FFFFFF; }
 .form-D { background-color: #B02A37; color: #FFFFFF; }
+
+/* --- Tableau de bord (/gestion/) ------------------------------------------------ */
+.dashboard-section { margin-bottom: 2.5rem; }
+.kpi .kpi-label { font-size: 0.875rem; color: var(--bs-secondary-color); }
+.kpi .kpi-value { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+.kpi-warning { border-left: 4px solid var(--bs-warning); }
+.chart-box { position: relative; height: 18rem; }
+.chart-box-square { height: 14rem; }
+.legend-dot { display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 50%; margin-right: 0.4rem; vertical-align: middle; }
+.legend-1 { background-color: var(--pfc-link); }
+.legend-2 { background-color: var(--pfc-accent); }
+.col-fill { min-width: 9rem; }
+.fill-meter { width: 100%; height: 0.75rem; }
+.score-input { max-width: 5rem; text-align: center; font-weight: 700; }
+[data-bs-theme="dark"] .legend-2 { background-color: var(--pfc-light); }

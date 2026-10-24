@@ -220,6 +220,10 @@ class ClubSettings(SingletonModel):
         permissions = [
             ("view_dashboard", "Peut accéder au tableau de bord"),
             ("view_financial_reports", "Peut consulter les indicateurs financiers"),
+            (
+                "view_all_indicators",
+                "Peut consulter tous les indicateurs du tableau de bord (chiffres agrégés)",
+            ),
         ]
 
     CACHE_KEY = "core:club_settings"

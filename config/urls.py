@@ -10,6 +10,7 @@ urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("compte/", include("allauth.urls")),
     path("compte/", include("apps.accounts.urls")),
+    path("gestion/", include("apps.dashboard.urls")),
     path("sitemap.xml", sitemap, {"sitemaps": SITEMAPS}, name="sitemap"),
     path("", include("apps.core.urls")),
     path("", include("apps.teams.urls")),

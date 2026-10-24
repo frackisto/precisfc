@@ -1,0 +1,274 @@
+{% extends "dashboard/base.html" %}
+{% load money %}
+{% block page_title %}Tableau de bord{% endblock page_title %}
+{% block content %}
+{% if overview %}
+  <section class="mb-4" id="vue-ensemble" aria-labelledby="titre-vue-ensemble">
+    <h2 class="visually-hidden" id="titre-vue-ensemble">Vue d'ensemble</h2>
+    <div class="row row-cols-2 row-cols-md-3 row-cols-xl-5 g-3">
+      {% for kpi in overview %}
+        {% include "dashboard/partials/kpi.html" with label=kpi.label value=kpi.value hint=kpi.hint %}
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
+<div class="row g-4 mb-4">
+  {% if tasks %}
+    <section class="col-lg-7" aria-labelledby="titre-a-traiter">
+      <div class="card h-100">
+        <div class="card-header"><h2 class="h5 mb-0" id="titre-a-traiter"><i class="bi bi-list-check me-2" aria-hidden="true"></i>À traiter</h2></div>
+        <ul class="list-group list-group-flush">
+          {% for task in tasks %}
+            <li class="list-group-item d-flex align-items-center gap-3{% if not task.count %} text-body-secondary{% endif %}">
+              <i class="bi bi-{{ task.icon }} fs-5" aria-hidden="true"></i>
+              <a class="flex-grow-1 {% if task.count %}fw-semibold{% else %}text-reset{% endif %}" href="{{ task.url }}">{{ task.label }}</a>
+              <span class="badge rounded-pill {% if task.count %}text-bg-warning{% else %}text-bg-light border{% endif %}" data-task-count>{{ task.count|thousands }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+  {% endif %}
+  {% if shortcuts %}
+    <section class="{% if tasks %}col-lg-5{% else %}col-12{% endif %}" aria-labelledby="titre-raccourcis">
+      <div class="card h-100">
+        <div class="card-header"><h2 class="h5 mb-0" id="titre-raccourcis"><i class="bi bi-lightning-charge me-2" aria-hidden="true"></i>Raccourcis</h2></div>
+        <div class="card-body d-flex flex-wrap gap-2">
+          {% for shortcut in shortcuts %}
+            <a class="btn btn-outline-primary btn-sm" href="{{ shortcut.url }}"><i class="bi bi-{{ shortcut.icon }} me-1" aria-hidden="true"></i>{{ shortcut.label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+  {% endif %}
+</div>
+
+{% if "finances" in sections %}
+  <section class="dashboard-section" id="finances" aria-labelledby="titre-finances">
+    <h2 class="h4" id="titre-finances"><i class="bi bi-graph-up-arrow me-2" aria-hidden="true"></i>Finances</h2>
+    <p class="small text-body-secondary">Chiffre d'affaires : paiements <strong>confirmés</strong> uniquement, à leur date de confirmation.</p>
+    <div class="row row-cols-1 row-cols-sm-3 g-3 mb-3">
+      {% include "dashboard/partials/kpi.html" with label="Chiffre d'affaires de l'année" value=revenue_year.total|fcfa %}
+      {% include "dashboard/partials/kpi.html" with label="Panier moyen du mois" value=revenue_month.average_order|fcfa|default:"—" hint="Commandes de la boutique" %}
+      {% url 'dashboard:finances' as finances_url %}
+      {% include "dashboard/partials/kpi.html" with label="Paiements manuels à confirmer" value=pending_payments.count|thousands hint=pending_payments.amount|fcfa tone=pending_payments.count|yesno:"warning," %}
+    </div>
+    <div class="row g-3 mb-2">
+      <div class="col-md-6 small">
+        <span class="legend-dot legend-1" aria-hidden="true"></span>Boutique ce mois-ci : <strong>{{ revenue_month.shop|fcfa }}</strong>
+      </div>
+      <div class="col-md-6 small">
+        <span class="legend-dot legend-2" aria-hidden="true"></span>Billetterie ce mois-ci : <strong>{{ revenue_month.ticketing|fcfa }}</strong>
+      </div>
+    </div>
+    <div class="card"><div class="card-body">
+      {% include "dashboard/partials/revenue_chart.html" %}
+      <p class="mb-0 mt-3"><a href="{{ finances_url }}">Rapport financier détaillé et export <i class="bi bi-arrow-right" aria-hidden="true"></i></a></p>
+    </div></div>
+  </section>
+{% endif %}
+
+{% if "shop" in sections or "stock" in sections %}
+  <section class="dashboard-section" id="boutique" aria-labelledby="titre-boutique">
+    <h2 class="h4" id="titre-boutique"><i class="bi bi-bag me-2" aria-hidden="true"></i>Boutique</h2>
+    {% if "shop" in sections %}
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-3">
+        {% include "dashboard/partials/kpi.html" with label="Commandes à préparer" value=orders.to_prepare|thousands hint="Payées ou en préparation" tone=orders.to_prepare|yesno:"warning," %}
+        {% include "dashboard/partials/kpi.html" with label="En attente de paiement" value=orders.pending_payment|thousands %}
+        {% include "dashboard/partials/kpi.html" with label="Expédiées" value=orders.shipped|thousands hint="En cours de livraison" %}
+        {% include "dashboard/partials/kpi.html" with label="Retours en cours" value=open_returns|thousands tone=open_returns|yesno:"warning," %}
+      </div>
+      <h3 class="h6">Meilleures ventes du mois</h3>
+      {% if best_sellers %}
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle">
+            <thead><tr><th scope="col">Produit</th><th scope="col" class="text-end">Quantité</th><th scope="col" class="text-end">Montant</th></tr></thead>
+            <tbody>
+              {% for row in best_sellers %}
+                <tr><td>{{ row.variant__product__name }}</td><td class="text-end">{{ row.quantity|thousands }}</td><td class="text-end">{{ row.amount|fcfa }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-body-secondary">Aucune vente payée ce mois-ci.</p>
+      {% endif %}
+    {% endif %}
+    {% if "stock" in sections %}
+      <h3 class="h6" id="stock">Stock bas</h3>
+      {% if low_stock %}
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle" data-datatable>
+            <caption class="visually-hidden">Variantes dont le stock a atteint le seuil d'alerte</caption>
+            <thead><tr><th scope="col">Produit</th><th scope="col">Variante</th><th scope="col">Référence</th><th scope="col" class="text-end">Stock</th><th scope="col" class="text-end">Seuil</th></tr></thead>
+            <tbody>
+              {% for variant in low_stock %}
+                <tr>
+                  <td>{% if perms.shop.change_productvariant %}<a href="{% url 'admin:shop_productvariant_change' variant.pk %}">{{ variant.product.name }}</a>{% else %}{{ variant.product.name }}{% endif %}</td>
+                  <td>{{ variant.size }}{% if variant.size and variant.color %} / {% endif %}{{ variant.color }}</td>
+                  <td><code>{{ variant.sku }}</code></td>
+                  <td class="text-end" data-order="{{ variant.stock }}">{% if variant.stock == 0 %}<span class="badge text-bg-danger">Épuisé</span>{% else %}{{ variant.stock }}{% endif %}</td>
+                  <td class="text-end">{{ variant.low_stock_threshold }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="text-body-secondary">Aucun article sous le seuil d'alerte.</p>
+      {% endif %}
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if "ticketing" in sections %}
+  <section class="dashboard-section" id="billetterie" aria-labelledby="titre-billetterie">
+    <h2 class="h4" id="titre-billetterie"><i class="bi bi-ticket-perforated me-2" aria-hidden="true"></i>Billetterie</h2>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3 mb-3">
+      {% include "dashboard/partials/kpi.html" with label="Réservations en attente de paiement" value=pending_bookings|thousands hint="Places bloquées jusqu'à leur échéance" %}
+    </div>
+    {% if ticket_sales %}
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <caption class="visually-hidden">Ventes des prochains matchs</caption>
+          <thead>
+            <tr>
+              <th scope="col">Match</th><th scope="col" class="text-end">Places</th><th scope="col" class="text-end">Vendus</th>
+              <th scope="col" class="col-fill">Remplissage</th><th scope="col" class="text-end">En attente</th><th scope="col" class="text-end">Restantes</th>
+              {% if "finances" in sections %}<th scope="col" class="text-end">Recette confirmée</th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for sale in ticket_sales %}
+              <tr>
+                <td>{{ sale.match.home_club }} - {{ sale.match.away_club }}<br><span class="small text-body-secondary">{{ sale.match.kickoff_at|date:"l j F Y, H\hi" }}</span></td>
+                <td class="text-end">{{ sale.capacity|thousands }}</td>
+                <td class="text-end">{{ sale.sold|thousands }}</td>
+                <td>
+                  {% if sale.fill_rate is not None %}
+                    <meter class="fill-meter" min="0" max="100" low="50" high="90" optimum="100" value="{{ sale.fill_rate|stringformat:'.1f' }}" aria-label="Taux de remplissage">{{ sale.fill_rate|floatformat:1 }} %</meter>
+                    <span class="small">{{ sale.fill_rate|floatformat:1 }} %</span>
+                  {% endif %}
+                </td>
+                <td class="text-end">{{ sale.reserved|thousands }}</td>
+                <td class="text-end">{{ sale.remaining|thousands }}</td>
+                {% if "finances" in sections %}<td class="text-end">{{ sale.revenue|fcfa }}</td>{% endif %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-body-secondary">Aucun match à venir n'est en vente.</p>
+    {% endif %}
+  </section>
+{% endif %}
+
+{% if "sport" in sections %}
+  <section class="dashboard-section" id="sport" aria-labelledby="titre-sport">
+    <h2 class="h4" id="titre-sport"><i class="bi bi-trophy me-2" aria-hidden="true"></i>Sport{% if season %} — saison {{ season }}{% endif %}</h2>
+    {% if season %}
+      <div class="row row-cols-2 row-cols-md-3 row-cols-xl-6 g-3 mb-3">
+        {% include "dashboard/partials/kpi.html" with label="Matchs joués" value=record.played %}
+        {% include "dashboard/partials/kpi.html" with label="Victoires" value=record.won %}
+        {% include "dashboard/partials/kpi.html" with label="Nuls" value=record.drawn %}
+        {% include "dashboard/partials/kpi.html" with label="Défaites" value=record.lost %}
+        {% include "dashboard/partials/kpi.html" with label="Buts marqués" value=record.goals_for %}
+        {% include "dashboard/partials/kpi.html" with label="Buts encaissés" value=record.goals_against %}
+      </div>
+    {% else %}
+      <p class="text-body-secondary">Aucune saison n'est marquée « en cours » dans l'administration.</p>
+    {% endif %}
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <h3 class="h6">Derniers résultats</h3>
+        {% if results %}
+          <ul class="list-group">
+            {% for match in results %}
+              <li class="list-group-item">
+                {{ match.home_club }} <strong>{{ match.home_score }} - {{ match.away_score }}</strong> {{ match.away_club }}{% if match.home_penalties is not None %} <span class="small">({{ match.home_penalties }} - {{ match.away_penalties }} t.a.b.)</span>{% endif %}
+                <span class="d-block small text-body-secondary">{{ match.kickoff_at|date:"j F Y" }} · {{ match.competition_season.competition }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-body-secondary">Aucun résultat pour l'instant.</p>
+        {% endif %}
+      </div>
+      <div class="col-lg-4">
+        <h3 class="h6">Classements</h3>
+        {% if standings %}
+          <ul class="list-group">
+            {% for standing in standings %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ standing.competition_season.competition }} <span class="small text-body-secondary">({{ standing.competition_season.team }})</span></span>
+                <span><strong>{{ standing.position }}<sup>{% if standing.position == 1 %}er{% else %}e{% endif %}</sup></strong> · {{ standing.points }} pts{% if standing.form %} · <span class="small">{{ standing.form }}</span>{% endif %}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-body-secondary">Pas encore de classement cette saison.</p>
+        {% endif %}
+      </div>
+      <div class="col-lg-4">
+        <h3 class="h6">Prochains matchs</h3>
+        {% if upcoming %}
+          <ul class="list-group">
+            {% for match in upcoming %}
+              <li class="list-group-item">
+                {{ match.home_club }} - {{ match.away_club }}
+                <span class="d-block small text-body-secondary">{{ match.kickoff_at|date:"l j F, H\hi" }} · {{ match.competition_season.competition }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-body-secondary">Aucun match programmé.</p>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+{% if "news" in sections or "media" in sections %}
+  <section class="dashboard-section" id="contenus" aria-labelledby="titre-contenus">
+    <h2 class="h4" id="titre-contenus"><i class="bi bi-newspaper me-2" aria-hidden="true"></i>Contenus</h2>
+    <div class="row row-cols-2 row-cols-md-4 g-3">
+      {% if "news" in sections %}
+        {% include "dashboard/partials/kpi.html" with label="Articles en relecture" value=articles.in_review tone=articles.in_review|yesno:"warning," %}
+        {% include "dashboard/partials/kpi.html" with label="Articles programmés" value=articles.scheduled %}
+        {% include "dashboard/partials/kpi.html" with label="Publiés ce mois-ci" value=articles.published_this_month %}
+        {% include "dashboard/partials/kpi.html" with label="Brouillons" value=articles.drafts %}
+      {% endif %}
+      {% if "media" in sections %}
+        {% include "dashboard/partials/kpi.html" with label="Albums publiés" value=media.albums|thousands %}
+        {% include "dashboard/partials/kpi.html" with label="Photos" value=media.photos|thousands %}
+        {% include "dashboard/partials/kpi.html" with label="Vidéos publiées" value=media.videos|thousands %}
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+
+{% if "supporters" in sections or "newsletter" in sections or "contact" in sections or "academy" in sections %}
+  <section class="dashboard-section" id="relations" aria-labelledby="titre-relations">
+    <h2 class="h4" id="titre-relations"><i class="bi bi-people me-2" aria-hidden="true"></i>Supporters, contacts et académie</h2>
+    <div class="row row-cols-2 row-cols-md-4 g-3">
+      {% if "supporters" in sections %}
+        {% include "dashboard/partials/kpi.html" with label="Comptes actifs" value=supporters.total|thousands %}
+        {% include "dashboard/partials/kpi.html" with label="Nouveaux comptes ce mois-ci" value=supporters.new|thousands %}
+      {% endif %}
+      {% if "newsletter" in sections %}
+        {% include "dashboard/partials/kpi.html" with label="Abonnés à la newsletter" value=subscribers|thousands hint="Inscriptions confirmées" %}
+      {% endif %}
+      {% if "contact" in sections %}
+        {% include "dashboard/partials/kpi.html" with label="Nouveaux messages" value=contact.new|thousands tone=contact.new|yesno:"warning," %}
+        {% include "dashboard/partials/kpi.html" with label="Messages en cours" value=contact.in_progress|thousands %}
+      {% endif %}
+      {% if "academy" in sections %}
+        {% include "dashboard/partials/kpi.html" with label="Candidatures à examiner" value=applications.to_review|thousands tone=applications.to_review|yesno:"warning," %}
+        {% include "dashboard/partials/kpi.html" with label="Invités à un essai" value=applications.trial|thousands %}
+        {% include "dashboard/partials/kpi.html" with label="Conservation dépassée" value=applications.retention_overdue|thousands hint="Candidatures à supprimer" tone=applications.retention_overdue|yesno:"warning," %}
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
+{% endblock content %}

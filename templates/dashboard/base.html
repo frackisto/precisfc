@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{% block page_title %}Tableau de bord{% endblock page_title %} — {{ club.name }}{% endblock title %}
+{% block robots %}<meta name="robots" content="noindex, nofollow">{% endblock robots %}
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'vendor/datatables/css/dataTables.bootstrap5.min.css' %}">
+{% endblock extra_head %}
+{% block breadcrumbs %}{% endblock breadcrumbs %}
+{% block main %}
+  <div class="container-xxl py-4 dashboard">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+      <div>
+        <p class="text-body-secondary small text-uppercase fw-semibold mb-1">Tableau de bord</p>
+        <h1 class="h2 mb-0">{% block heading %}Bonjour {{ user.first_name|default:user.email }}{% endblock heading %}</h1>
+      </div>
+      <nav aria-label="Rubriques du tableau de bord">
+        <ul class="nav nav-pills">
+          {% for item in dashboard_nav %}
+            <li class="nav-item">
+              <a class="nav-link{% if item.active %} active{% endif %}" href="{{ item.url }}"{% if item.active %} aria-current="page"{% endif %}>
+                <i class="bi bi-{{ item.icon }} me-1" aria-hidden="true"></i>{{ item.label }}
+              </a>
+            </li>
+          {% endfor %}
+          {% if user.is_staff %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'admin:index' %}"><i class="bi bi-gear me-1" aria-hidden="true"></i>Administration</a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% block content %}{% endblock content %}
+  </div>
+{% endblock main %}
+{% block extra_js %}
+  <script src="{% static 'vendor/datatables/js/dataTables.min.js' %}"></script>
+  <script src="{% static 'vendor/datatables/js/dataTables.bootstrap5.min.js' %}"></script>
+  <script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+  <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock extra_js %}

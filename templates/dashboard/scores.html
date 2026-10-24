@@ -1,0 +1,26 @@
+{% extends "dashboard/base.html" %}
+{% block page_title %}Saisie des scores{% endblock page_title %}
+{% block heading %}Saisie rapide des scores{% endblock heading %}
+{% block content %}
+<p>Le classement et les statistiques sont recalculés dès l'enregistrement. Compositions, buteurs et cartons se complètent ensuite dans la fiche du match.</p>
+
+<section class="mb-5" aria-labelledby="titre-a-saisir">
+  <h2 class="h4" id="titre-a-saisir">À saisir <span class="badge text-bg-warning">{{ awaiting|length }}</span></h2>
+  <p class="small text-body-secondary">Matchs dont le coup d'envoi est passé, pas encore terminés.</p>
+  {% if awaiting %}
+    {% include "dashboard/partials/score_table.html" with rows=awaiting %}
+  {% else %}
+    <p class="text-body-secondary">Aucun score en attente.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="titre-recents">
+  <h2 class="h4" id="titre-recents">Terminés ces 14 derniers jours</h2>
+  <p class="small text-body-secondary">Pour corriger un score enregistré par erreur.</p>
+  {% if recent %}
+    {% include "dashboard/partials/score_table.html" with rows=recent %}
+  {% else %}
+    <p class="text-body-secondary">Aucun match terminé récemment.</p>
+  {% endif %}
+</section>
+{% endblock content %}

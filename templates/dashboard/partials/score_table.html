@@ -1,0 +1,44 @@
+{% comment %}
+Une ligne par match, chacune avec son propre formulaire (enregistrement match par match).
+{% endcomment %}
+<div class="vstack gap-3">
+  {% for row in rows %}
+    {% with match=row.match form=row.form %}
+      <form method="post" action="{% url 'dashboard:score_update' match.pk %}" class="card score-card{% if form.errors %} border-danger{% endif %}" id="match-{{ match.pk }}" novalidate>
+        {% csrf_token %}
+        <div class="card-body">
+          <div class="d-flex flex-wrap justify-content-between gap-2 mb-2 small text-body-secondary">
+            <span>{{ match.competition_season.competition }}{% if match.matchday %} · journée {{ match.matchday }}{% elif match.round_label %} · {{ match.round_label }}{% endif %} · {{ match.competition_season.team }}</span>
+            <span>{{ match.kickoff_at|date:"l j F Y, H\hi" }} · {{ match.get_status_display }}</span>
+          </div>
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger py-2" role="alert">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</div>
+          {% endif %}
+          <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4 text-md-end fw-semibold"><label for="{{ form.home_score.id_for_label }}">{{ match.home_club }}</label></div>
+            <div class="col-3 col-md-1">{{ form.home_score }}</div>
+            <div class="col-auto pb-2" aria-hidden="true">–</div>
+            <div class="col-3 col-md-1">{{ form.away_score }}</div>
+            <div class="col-12 col-md-4 fw-semibold"><label for="{{ form.away_score.id_for_label }}">{{ match.away_club }}</label></div>
+          </div>
+          {% for field in form %}{% for error in field.errors %}<p class="text-danger small mb-0 mt-1">{{ field.label }} : {{ error }}</p>{% endfor %}{% endfor %}
+          <details class="mt-2"{% if form.home_penalties.value or form.away_penalties.value or form.home_penalties.errors or form.away_penalties.errors %} open{% endif %}>
+            <summary class="small">Tirs au but (match à élimination directe)</summary>
+            <div class="row g-2 mt-1 align-items-center">
+              <div class="col-auto"><label class="small" for="{{ form.home_penalties.id_for_label }}">{{ match.home_club }}</label></div>
+              <div class="col-3 col-md-1">{{ form.home_penalties }}</div>
+              <div class="col-3 col-md-1">{{ form.away_penalties }}</div>
+              <div class="col-auto"><label class="small" for="{{ form.away_penalties.id_for_label }}">{{ match.away_club }}</label></div>
+            </div>
+          </details>
+          <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+            <label class="small" for="{{ form.status.id_for_label }}">Statut</label>
+            <div>{{ form.status }}</div>
+            <button type="submit" class="btn btn-primary btn-sm ms-auto"><i class="bi bi-check2 me-1" aria-hidden="true"></i>Enregistrer</button>
+            {% if perms.matches.change_match %}<a class="btn btn-link btn-sm" href="{% url 'admin:matches_match_change' match.pk %}">Feuille de match complète</a>{% endif %}
+          </div>
+        </div>
+      </form>
+    {% endwith %}
+  {% endfor %}
+</div>

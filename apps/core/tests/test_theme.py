@@ -94,10 +94,11 @@ def test_supporter_sees_account_and_logout_form_but_no_admin(client):
     assert reverse("admin:index") not in page
 
 
-def test_staff_sees_the_admin_link(client):
+def test_staff_sees_the_dashboard_link(client):
+    # Le tableau de bord (étape 10) mène ensuite à l'administration.
     client.force_login(UserFactory(is_superuser=True))
 
-    assert reverse("admin:index") in html(client.get(reverse("core:home")))
+    assert reverse("dashboard:home") in html(client.get(reverse("core:home")))
 
 
 # --- Menu ------------------------------------------------------------------------------

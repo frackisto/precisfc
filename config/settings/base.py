@@ -25,7 +25,8 @@ ADMIN_URL = env("DJANGO_ADMIN_URL", default="admin/")
 
 # --- Applications -------------------------------------------------------------
 DJANGO_APPS = [
-    "django.contrib.admin",
+    # django.contrib.admin, aux couleurs du club (apps/dashboard/admin_site.py).
+    "apps.dashboard.admin_config.ClubAdminConfig",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

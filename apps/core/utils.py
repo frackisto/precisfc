@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import date
+from decimal import ROUND_HALF_UP, Decimal
 from pathlib import PurePosixPath
 
 from django.utils import timezone
@@ -60,3 +61,16 @@ class RandomFilename:
 
     def __eq__(self, other):
         return isinstance(other, RandomFilename) and self.prefix == other.prefix
+
+
+# Espace insécable : un montant ne se coupe jamais en fin de ligne (« 15 000 FCFA »).
+NBSP = chr(0xA0)
+
+
+def format_fcfa(amount, *, with_unit: bool = True) -> str:
+    """Montant en francs CFA, sans décimales et groupé par milliers : « 15 000 FCFA »."""
+    if amount is None or amount == "":
+        return ""
+    rounded = int(Decimal(amount).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+    text = f"{rounded:,}".replace(",", NBSP)
+    return f"{text}{NBSP}FCFA" if with_unit else text

@@ -25,7 +25,9 @@ from apps.competitions.models import Club, Competition, CompetitionSeason, Parti
 from apps.competitions.services.recompute import recompute_edition, recompute_suspended
 from apps.core.utils import years_ago
 from apps.matches.models import LineupEntry, Match, MatchEvent, MatchTeamStat
+from apps.payments.models import Payment
 from apps.teams.models import Player, Team
+from apps.ticketing.models import Booking, TicketCategory
 
 PREFIX = "demo-"
 OPPONENTS = [
@@ -117,7 +119,12 @@ class Command(BaseCommand):
     @transaction.atomic
     def delete_demo(self):
         with recompute_suspended():
-            Match.objects.filter(competition_season__season__slug__startswith=PREFIX).delete()
+            demo_matches = Match.objects.filter(competition_season__season__slug__startswith=PREFIX)
+            # Billetterie de démonstration (demo_dashboard) attachée à ces matchs.
+            Payment.objects.filter(booking__match__in=demo_matches).delete()
+            Booking.objects.filter(match__in=demo_matches).delete()
+            TicketCategory.objects.filter(match__in=demo_matches).delete()
+            demo_matches.delete()
             CompetitionSeason.objects.filter(season__slug__startswith=PREFIX).delete()
             Competition.objects.filter(slug__startswith=PREFIX).delete()
             Player.objects.filter(slug__startswith=PREFIX).delete()

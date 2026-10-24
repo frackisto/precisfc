@@ -1,0 +1,101 @@
+{% extends "dashboard/base.html" %}
+{% load money %}
+{% block page_title %}Finances{% endblock page_title %}
+{% block heading %}Rapport financier{% endblock heading %}
+{% block content %}
+<section class="card mb-4" aria-labelledby="titre-periode">
+  <div class="card-body">
+    <h2 class="h6" id="titre-periode">Période</h2>
+    <form method="get" class="row g-2 align-items-end" novalidate>
+      {% for field in form %}
+        <div class="col-auto">
+          <label class="form-label small mb-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          <input type="date" class="form-control form-control-sm{% if field.errors %} is-invalid{% endif %}" name="{{ field.html_name }}" id="{{ field.id_for_label }}" value="{{ field.value|default_if_none:''|stringformat:'s' }}">
+        </div>
+      {% endfor %}
+      <div class="col-auto"><button type="submit" class="btn btn-primary btn-sm">Afficher</button></div>
+      <div class="col-12 col-lg d-flex flex-wrap gap-2 justify-content-lg-end">
+        {% for preset in presets %}
+          <a class="btn btn-outline-secondary btn-sm" href="?du={{ preset.du }}&amp;au={{ preset.au }}">{{ preset.label }}</a>
+        {% endfor %}
+      </div>
+    </form>
+    {% if form.non_field_errors or form.errors %}
+      <div class="alert alert-danger mt-3 mb-0" role="alert">
+        {% for error in form.non_field_errors %}{{ error }} {% endfor %}
+        {% for field in form %}{% for error in field.errors %}{{ field.label }} : {{ error }} {% endfor %}{% endfor %}
+        Affichage du mois en cours.
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<p class="lead">Du <strong>{{ period.first|date:"j F Y" }}</strong> au <strong>{{ period.last|date:"j F Y" }}</strong>
+  <span class="small text-body-secondary d-block">Paiements confirmés uniquement, à leur date de confirmation.</span></p>
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3 mb-4">
+  {% include "dashboard/partials/kpi.html" with label="Chiffre d'affaires" value=revenue.total|fcfa %}
+  {% include "dashboard/partials/kpi.html" with label="Boutique" value=revenue.shop|fcfa hint=revenue.orders|thousands|add:" commande(s) payée(s)" %}
+  {% include "dashboard/partials/kpi.html" with label="Billetterie" value=revenue.ticketing|fcfa %}
+  {% include "dashboard/partials/kpi.html" with label="Panier moyen" value=revenue.average_order|fcfa|default:"—" %}
+  {% include "dashboard/partials/kpi.html" with label="Paiements manuels à confirmer" value=pending_payments.count|thousands hint=pending_payments.amount|fcfa tone=pending_payments.count|yesno:"warning," %}
+</div>
+
+<div class="row g-4 mb-4">
+  <section class="col-lg-8" aria-labelledby="titre-evolution">
+    <div class="card h-100"><div class="card-body">
+      <h2 class="h5" id="titre-evolution">Évolution sur 12 mois</h2>
+      {% include "dashboard/partials/revenue_chart.html" %}
+    </div></div>
+  </section>
+  <section class="col-lg-4" aria-labelledby="titre-moyens">
+    <div class="card h-100"><div class="card-body">
+      <h2 class="h5" id="titre-moyens">Par moyen de paiement</h2>
+      {% if by_method %}
+        <div class="chart-box chart-box-square"><canvas id="graphique-moyens" data-chart="donnees-moyens" data-chart-type="doughnut" role="img" aria-label="Répartition du chiffre d'affaires par moyen de paiement"></canvas></div>
+        {{ method_chart|json_script:"donnees-moyens" }}
+        <table class="table table-sm mt-3 mb-0">
+          <thead><tr><th scope="col">Moyen</th><th scope="col" class="text-end">Paiements</th><th scope="col" class="text-end">Montant</th></tr></thead>
+          <tbody>
+            {% for row in by_method %}
+              <tr><td>{{ row.label }}</td><td class="text-end">{{ row.count|thousands }}</td><td class="text-end">{{ row.amount|fcfa }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-body-secondary mb-0">Aucun paiement confirmé sur la période.</p>
+      {% endif %}
+    </div></div>
+  </section>
+</div>
+
+<section aria-labelledby="titre-detail">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <h2 class="h5 mb-0" id="titre-detail">Détail des paiements confirmés ({{ payments|length }})</h2>
+    <a class="btn btn-outline-primary btn-sm" href="{% url 'dashboard:finances_export' %}{% if export_query %}?{{ export_query }}{% endif %}"><i class="bi bi-download me-1" aria-hidden="true"></i>Exporter (CSV)</a>
+  </div>
+  {% if payments %}
+    <div class="table-responsive">
+      <table class="table table-sm align-middle" data-datatable>
+        <thead>
+          <tr><th scope="col">Confirmé le</th><th scope="col">Objet</th><th scope="col">Moyen</th><th scope="col">Référence</th><th scope="col" class="text-end">Montant</th><th scope="col">Confirmé par</th></tr>
+        </thead>
+        <tbody>
+          {% for payment in payments %}
+            <tr>
+              <td data-order="{{ payment.confirmed_at|date:'c' }}">{{ payment.confirmed_at|date:"d/m/Y H:i" }}</td>
+              <td>{% if payment.order_id %}Commande {{ payment.order.number }}{% else %}Billetterie {{ payment.booking.reference }}{% endif %}</td>
+              <td>{{ payment.get_method_display }}</td>
+              <td>{{ payment.provider_reference|default:"—" }}</td>
+              <td class="text-end" data-order="{{ payment.amount|stringformat:'.0f' }}">{{ payment.amount|fcfa }}</td>
+              <td>{{ payment.confirmed_by.email|default:"—" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="text-body-secondary">Aucun paiement confirmé sur la période.</p>
+  {% endif %}
+</section>
+{% endblock content %}
